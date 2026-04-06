@@ -1,16 +1,95 @@
 import Food from "../models/Food.js";
+import mongoose from "mongoose";
 
 class FoodController {
+  index = async (req, res) => {
+    const { name, caloriesPerGram, sort, order } = req.query;
 
-  list = async (req, res) => {
-    const foods = await Food.find()
-    return res.json(foods)
+    let filter = {};
+
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+
+    if (caloriesPerGram) {
+      filter.caloriesPerGram = { $lte: Number(caloriesPerGram) };
+    }
+
+    const sortOrder = order || "name";
+    const sortDirection = sort === "desc" ? -1 : 1;
+
+    const foods = await Food.find(filter).sort({ [sortOrder]: sortDirection });
+
+    return res.json(foods);
+  };
+
+  show = async (req, res) => {
+    const filter = { _id: req.params.foodId };
+    const food = await Food.find(filter);
+
+    if (!food) {
+      return res.status(404).json();
+    }
+
+    return res.json(food);
+  };
+
+  create = async (req, res) => {
+    try {
+      const food = await Food.create(req.body);
+      return res.status(201).json(food);
+    } catch (error) {
+      if (error.name === "ValidationError") {
+        const messages = Object.values(error.errors).map((err) => err.message);
+        return res.status(400).json({ errors: messages });
+      }
+
+      return res.status(500).json({ error: "Internal error server" });
+    }
+  };
+
+  update = async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const food = await Food.findByIdAndUpdate(id, req.body, {
+        returnDocument: "after",
+        runValidators: true,
+      });
+
+      if (!food) {
+        return res.status(404).json({ error: "Food not found" });
+      }
+
+      return res.json(food);
+    } catch (error) {
+      if (error.name === "ValidationError") {
+        const messages = Object.values(error.errors).map((err) => err.message);
+        return res.status(400).json({ errors: messages });
+      }
+      return res.status(500).json({ error: "Error updating" });
+    }
+  };
+
+  delete = async (req, res) => {
+    try{
+      const {id} = req.params
+
+    const food = await Food.findByIdAndDelete(id)
+
+    if (!food){
+      return res.status(404).json({ error: "Food not found" });
+    }
+
+    return res.json()
+    } catch (error) {
+      if (error.name === "ValidationError") {
+        const messages = Object.values(error.errors).map((err) => err.message);
+        return res.status(400).json({ errors: messages });
+      }
+      return res.status(500).json({ error: "Error deleting" });
+    }
   }
-
-
-
-  create
-
 }
 
-export default new FoodController()
+export default new FoodController();
