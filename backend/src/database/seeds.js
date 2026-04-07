@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Food from "../app/models/Food.js";
+import Meal from "../app/models/Meal.js";
 
 const dbUser = "admin";
 const dbPass = "admin";
@@ -13,33 +14,85 @@ async function seed() {
   await mongoose.connect(uri);
 
   await Food.deleteMany({});
+  await Meal.deleteMany({});
 
   const defaultFoods = [
     {
       name: "Arroz",
       caloriesPerGram: 1.5,
-      category: "Carbohydrates"
+      category: "Carbohydrates",
     },
     {
       name: "Uva",
       caloriesPerGram: 2.5,
-      category: "Fruits"
+      category: "Fruits",
     },
     {
       name: "Ovo",
       caloriesPerGram: 1.2,
-      category: "Proteins"
+      category: "Proteins",
     },
     {
       name: "Vagem",
       caloriesPerGram: 1.6,
-      category: "Vegetables"
+      category: "Vegetables",
     },
   ];
 
-  await Food.insertMany(defaultFoods)
+  const newFoods = await Food.insertMany(defaultFoods);
 
-  process.exit()
-};
+  const defaultMeals = [
+    {
+      name: "Cafe da Manha",
+      date: new Date(),
+      items: [
+        {
+          foodId: newFoods[1]._id,
+          quantityGrams: 100,
+        },
+        {
+          foodId: newFoods[2]._id,
+          quantityGrams: 150,
+        },
+      ],
+    },
+    {
+      name: "Almoco",
+      date: new Date(),
+      items: [
+        {
+          foodId: newFoods[0]._id,
+          quantityGrams: 300,
+        },
+        {
+          foodId: newFoods[1]._id,
+          quantityGrams: 100,
+        },
+        {
+          foodId: newFoods[3]._id,
+          quantityGrams: 30,
+        },
+      ],
+    },
+    {
+      name: "Lanche",
+      date: new Date('2026-01-01T12:00:00Z'),
+      items: [
+        {
+          foodId: newFoods[1]._id,
+          quantityGrams: 120,
+        },
+        {
+          foodId: newFoods[3]._id,
+          quantityGrams: 80,
+        },
+      ],
+    },
+  ];
 
-seed()
+  const newMeals = await Meal.insertMany(defaultMeals)
+
+  process.exit();
+}
+
+seed();

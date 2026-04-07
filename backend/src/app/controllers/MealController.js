@@ -1,8 +1,8 @@
-import Food from "../models/Food.js";
+import Meal from "../models/Meal.js";
 
-class FoodController {
+class MealController {
   index = async (req, res) => {
-    const { name, caloriesPerGram, category, sort, order } = req.query;
+    const { name, date} = req.query;
 
     let filter = {};
 
@@ -10,37 +10,40 @@ class FoodController {
       filter.name = { $regex: name, $options: "i" };
     }
 
-    if (caloriesPerGram) {
-      filter.caloriesPerGram = { $lte: Number(caloriesPerGram) };
+    if (date) {
+      const dateSearch = new Date(date)
+
+      const dateStart = new Date(dateSearch)
+      dateStart.setUTCDate(0,0,0,0)
+      const dateEnd = new Date(dateSearch)
+      dateEnd.setUTCDate(23,59,59,999)
+
+      filter.date = {
+        $gte: dateStart,
+        $lte: dateEnd
+      }
     }
 
-    if (category) {
-      filter.category = { $regex: category, $options: "i"  };
-    }
+    const meals = await Meal.find(filter);
 
-    const sortOrder = order || "name";
-    const sortDirection = sort === "desc" ? -1 : 1;
-
-    const foods = await Food.find(filter).sort({ [sortOrder]: sortDirection });
-
-    return res.json(foods);
+    return res.json(meals);
   };
 
   show = async (req, res) => {
-    const filter = { _id: req.params.foodId };
-    const food = await Food.find(filter);
+    const filter = { _id: req.params.mealId };
+    const meal = await Meal.find(filter);
 
-    if (!food) {
+    if (!meal) {
       return res.status(404).json();
     }
 
-    return res.json(food);
+    return res.json(meal);
   };
 
   create = async (req, res) => {
     try {
-      const food = await Food.create(req.body);
-      return res.status(201).json(food);
+      const meal = await Meal.create(req.body);
+      return res.status(201).json(meal);
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
@@ -55,16 +58,16 @@ class FoodController {
     try {
       const { id } = req.params;
 
-      const food = await Food.findByIdAndUpdate(id, req.body, {
+      const meal = await Meal.findByIdAndUpdate(id, req.body, {
         returnDocument: "after",
         runValidators: true,
       });
 
-      if (!food) {
-        return res.status(404).json({ error: "Food not found" });
+      if (!meal) {
+        return res.status(404).json({ error: "Meal not found" });
       }
 
-      return res.json(food);
+      return res.json(meal);
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
@@ -78,10 +81,10 @@ class FoodController {
     try{
       const {id} = req.params
 
-    const food = await Food.findByIdAndDelete(id)
+    const meal = await Meal.findByIdAndDelete(id)
 
-    if (!food){
-      return res.status(404).json({ error: "Food not found" });
+    if (!meal){
+      return res.status(404).json({ error: "Meal not found" });
     }
 
     return res.json()
@@ -95,4 +98,4 @@ class FoodController {
   }
 }
 
-export default new FoodController();
+export default new MealController();

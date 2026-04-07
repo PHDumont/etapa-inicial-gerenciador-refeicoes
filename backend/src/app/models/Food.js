@@ -17,6 +17,6 @@ const foodSchema = new mongoose.Schema({
   category: { type: String, required: true, enum: {values: categories} },
 });
 
-const Food = mongoose.model("User", foodSchema);
+const Food = mongoose.model("Food", foodSchema);
 
 export default Food;
