@@ -30,14 +30,27 @@ class MealController {
   };
 
   show = async (req, res) => {
-    const filter = { _id: req.params.mealId };
-    const meal = await Meal.find(filter);
+    const {id} = req.params
+    const meal = await Meal.findById(id).populate('items.foodId')
 
     if (!meal) {
-      return res.status(404).json();
+      return res.status(404).json({ error: "Meal not found" });
     }
 
-    return res.json(meal);
+    let total = 0
+
+    meal.items.forEach(item => {
+      const {foodId} = item
+      const food = item.foodId
+
+      if (!food) {
+      return res.status(404).json({ error: "Food not found" });
+    }
+      let caloriesFood = food.caloriesPerGram * item.quantityGrams
+      total += caloriesFood
+    })
+    
+    return res.json([meal, total])
   };
 
   create = async (req, res) => {

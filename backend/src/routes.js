@@ -13,7 +13,7 @@ routes.put("/foods/:id", foods.update)
 routes.delete("/foods/:id", foods.delete)
 
 routes.get("/meals", meals.index)
-routes.get("/meals/:mealId", meals.show)
+routes.get("/meals/:id", meals.show)
 routes.post("/meals", meals.create)
 routes.put("/meals/:id", meals.update)
 routes.delete("/meals/:id", meals.delete)
