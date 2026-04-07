@@ -1,121 +1,85 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useEffect, useState } from 'react'
+// import {Routes, Route} from "react-router"
+import axios from 'axios';
+import {FoodCatalogy} from "./pages/FoodCatalogy"
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+axios.defaults.baseURL = 'http://localhost:3000';
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+interface Food {
+  _id: string;
+  name: string;
+  caloriesPerGram: number;
+  category: string;
 }
 
-export default App
+const Sidebar: React.FC = () => {
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-logo">Meal Tracker</div>
+      <ul className="nav-menu">
+        <li className="nav-item">Diário</li>
+        <li className="nav-item active">Catálogo de Alimentos</li>
+      </ul>
+    </aside>
+  );
+};
+
+const SummaryPanel: React.FC = () => {
+  return (
+    <aside className="summary-panel">
+      {/* Cabeçalho Verde Escuro */}
+      <div className="summary-header">
+        <h2>Resumo Diário</h2>
+        <p className="summary-date">Quarta, 01 de Janeiro</p>
+      </div>
+
+      {/* Cartão Cinza com Borda Azul */}
+      <div className="summary-card">
+
+        <div className="card-bottom-section">
+          <h4>Refeicoes do Dia</h4>
+          
+          <ul className="meal-list">
+            <li className="meal-item">
+              <span className="meal-name">Café da Manha</span>
+              <span className="meal-calories">350 kcal</span>
+            </li>
+            <li className="meal-item">
+              <span className="meal-name">Almoco</span>
+              <span className="meal-calories">650 kcal</span>
+            </li>
+            <li className="meal-item">
+              <span className="meal-name">Lanche</span>
+              <span className="meal-calories">150 kcal</span>
+            </li>
+          </ul>
+        </div>
+        
+      </div>
+    </aside>
+  );
+};
+
+function App(){
+  const [foods, setFoods] = useState<Food[]>([]);
+
+  const loadFoods = async () => {
+    const response = await axios.get<Food[]>("/foods")
+    setFoods(response.data)
+  }
+
+  useEffect(() =>{
+    loadFoods()
+  }, [])
+
+  return (
+    <div className="app-container">
+      <Sidebar />
+      <FoodCatalogy foods={foods} loadFoods={loadFoods}></FoodCatalogy>
+      <SummaryPanel />
+    </div>
+  );
+};
+
+export default App;

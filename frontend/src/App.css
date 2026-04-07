@@ -1,184 +1,272 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+/* ==========================================================================
+   1. VARIÁVEIS (DESIGN SYSTEM DO FIGMA)
+   ========================================================================== */
+:root {
+  /* Paleta de Cores */
+  --primary-color: #0F6A5B; /* Verde/Teal escuro da barra lateral */
+  --secondary-color: #18987B; /* Verde dos botões de adicionar */
+  --danger-color: #E74C3C; /* Vermelho do ícone de lixeira */
+  --bg-color: #F4F7F6; /* Fundo cinza bem claro do app */
+  --card-bg: #FFFFFF; /* Fundo branco dos cartões */
+  
+  /* Textos */
+  --text-dark: #2C3E50; /* Texto principal escuro */
+  --text-muted: #7F8C8D; /* Texto secundário/cinza (ex: calorias, gramas) */
+  
+  /* Bordas e Sombras */
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+/* ==========================================================================
+   2. RESET BÁSICO
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Roboto', sans-serif; /* Fontes limpas e modernas */
 }
 
-#center {
+body {
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+  height: 100vh;
+  overflow: hidden; /* Evita rolagem na página inteira no desktop */
+}
+
+/* ==========================================================================
+   3. LAYOUT PRINCIPAL (O ESQUELETO DA TELA)
+   ========================================================================== */
+.app-container {
+  display: grid;
+  /* 250px pra barra lateral, o resto pro meio, 320px pro resumo à direita */
+  grid-template-columns: 250px 1fr 320px; 
+  height: 100vh;
+}
+
+/* ==========================================================================
+   4. BARRA LATERAL (ESQUERDA)
+   ========================================================================== */
+.sidebar {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  gap: 2rem;
 }
 
-#next-steps {
+.sidebar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
   display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  align-items: center;
+  gap: 0.5rem;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+.nav-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-#next-steps ul {
+.nav-item {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Estado ativo do menu (quando o usuário clica) */
+.nav-item.active, .nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   5. ÁREA CENTRAL (CATÁLOGO/DIÁRIO)
+   ========================================================================== */
+.main-content {
+  padding: 2rem;
+  overflow-y: auto; /* Permite rolar apenas a área central */
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+/* O layout em grade para os cartões de comida */
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ==========================================================================
+   6. CARTÃO DE ALIMENTO (CARD)
+   ========================================================================== */
+.food-card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.2s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-5px); /* Efeito de flutuar ao passar o mouse */
+}
+
+.food-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.food-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.food-card p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+/* Botões CRUD dentro do card */
+.card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.icon-edit { color: var(--secondary-color); }
+.icon-delete { color: var(--danger-color); }
+
+.summary-panel {
+  background-color: #F4F7F6; /* Fundo geral claro */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid #e0e0e0;
+}
+
+/* O fundo verde escuro com a curva embaixo */
+.summary-header {
+  background-color: #0B6B50; /* Cor verde da imagem */
+  color: white;
+  width: 100%;
+  padding: 2.5rem 1.5rem 4rem 1.5rem; /* Padding extra embaixo para a curva */
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  text-align: center;
+}
+
+.summary-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.summary-date {
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* Navegador de Data (< Hoje >) */
+.date-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+}
+
+.nav-arrow {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   O CARTÃO CINZA COM BORDA AZUL
+   ========================================================================== */
+.summary-card {
+  background-color: #D6D6D6; /* Cinza claro da imagem */
+  border: 2px solid #2893F3; /* Borda azul viva */
+  border-radius: 16px;
+  width: 85%;
+  margin-top: -30px; /* Faz o cartão subir por cima do verde */
+  z-index: 10; /* Garante que fica na frente */
+  color: #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-top-section {
+  padding: 1rem;
+  min-height: 120px; /* Altura temporária para o gráfico futuro */
+  border-bottom: 1px solid #B0B0B0; /* Linha divisória interna */
+}
+
+.card-top-section h4, .card-bottom-section h4 {
+  font-weight: 500;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.card-bottom-section {
+  padding: 1rem;
+}
+
+/* Lista de Refeições Centralizada */
+.meal-list {
   list-style: none;
   padding: 0;
+  margin: 0;
   display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  flex-direction: column;
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+.meal-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #B0B0B0; /* Linha entre as refeições */
+  gap: 0.2rem;
 }
 
-.ticks {
-  position: relative;
-  width: 100%;
+/* Remove a linha divisória do último item */
+.meal-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+.meal-name {
+  font-size: 0.85rem;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+.meal-calories {
+  font-size: 0.9rem;
 }
