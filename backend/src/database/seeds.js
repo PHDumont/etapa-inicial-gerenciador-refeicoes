@@ -18,18 +18,22 @@ async function seed() {
     {
       name: "Arroz",
       caloriesPerGram: 1.5,
+      category: "Carbohydrates"
     },
     {
-      name: "Farofa",
+      name: "Uva",
       caloriesPerGram: 2.5,
+      category: "Fruits"
     },
     {
       name: "Ovo",
       caloriesPerGram: 1.2,
+      category: "Proteins"
     },
     {
-      name: "Batata",
+      name: "Vagem",
       caloriesPerGram: 1.6,
+      category: "Vegetables"
     },
   ];
 

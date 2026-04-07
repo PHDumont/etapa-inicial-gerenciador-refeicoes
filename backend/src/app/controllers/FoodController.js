@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 class FoodController {
   index = async (req, res) => {
-    const { name, caloriesPerGram, sort, order } = req.query;
+    const { name, caloriesPerGram, category, sort, order } = req.query;
 
     let filter = {};
 
@@ -13,6 +13,10 @@ class FoodController {
 
     if (caloriesPerGram) {
       filter.caloriesPerGram = { $lte: Number(caloriesPerGram) };
+    }
+
+    if (category) {
+      filter.category = { $regex: category, $options: "i"  };
     }
 
     const sortOrder = order || "name";
