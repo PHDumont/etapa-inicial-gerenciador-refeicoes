@@ -1,0 +1,104 @@
+
+.summary-panel {
+  background-color: #F4F7F6; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid #e0e0e0;
+}
+
+.summary-header {
+  background-color: #0B6B50;
+  color: white;
+  width: 100%;
+  padding: 2.5rem 1.5rem 4rem 1.5rem;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  text-align: center;
+}
+
+.summary-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.summary-date {
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.date-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+}
+
+.nav-arrow {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.summary-card {
+  background-color: #D6D6D6;
+  border: 2px solid #2893F3;
+  border-radius: 16px;
+  width: 85%;
+  margin-top: -30px;
+  z-index: 10;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-top-section {
+  padding: 1rem;
+  min-height: 120px;
+  border-bottom: 1px solid #B0B0B0;
+}
+
+.card-top-section h4, .card-bottom-section h4 {
+  font-weight: 500;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.card-bottom-section {
+  padding: 1rem;
+}
+
+.meal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #B0B0B0;
+  gap: 0.2rem;
+}
+
+.meal-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.meal-name {
+  font-size: 0.85rem;
+}
+
+.meal-calories {
+  font-size: 0.9rem;
+}
