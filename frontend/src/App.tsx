@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 // import {Routes, Route} from "react-router"
 import axios from 'axios';
-import {FoodCatalogy} from "./pages/FoodCatalogy"
+import {FoodCatalogy} from "./pages/FoodCatalogy/FoodCatalogy"
 import './App.css'
 
 axios.defaults.baseURL = 'http://localhost:3000';
