@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import "./FoodModal.css"
 
-// Tipagem dos dados que vamos enviar para salvar
 export interface NewFoodData {
   name: string;
   category: string;
@@ -22,7 +21,6 @@ function FoodModal({ isOpen, onClose, onSave }: FoodModalProps) {
   if (!isOpen) return null;
 
   const handleSave = () => {
-    // Validação básica
     if (!name || !category || calories === '') {
       alert("Preencha todos os campos!");
       return;
