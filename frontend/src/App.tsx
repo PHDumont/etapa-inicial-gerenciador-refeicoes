@@ -21,7 +21,7 @@ export interface Meal {
   isExpanded: boolean;
   items: foodId[];
 }
-interface foodId {
+export interface foodId {
   foodId: Food;
   quantityGrams: number;
   _id: string;

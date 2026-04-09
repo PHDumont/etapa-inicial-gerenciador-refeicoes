@@ -16,6 +16,7 @@ routes.get("/meals", meals.index)
 routes.get("/meals/:id", meals.show)
 routes.post("/meals", meals.create)
 routes.put("/meals/:id", meals.update)
+routes.put("/meals/:id/item/:itemId", meals.updateFood)
 routes.delete("/meals/:id", meals.delete)
 
 export default routes

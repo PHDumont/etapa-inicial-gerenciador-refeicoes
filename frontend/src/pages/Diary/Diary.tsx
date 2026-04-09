@@ -1,49 +1,35 @@
-// import { Sidebar } from "../../components/SideBar"
-// import { SummaryPanel } from "../../SummaryPanel"
-// import type { Meal } from "../../App"
-// import React from "react"
-
-
-// interface DiaryProps {
-//   meals: Meal[];
-//   setMeals: React.Dispatch<React.SetStateAction<Meal[]>>
-//   loadMeals: () => Promise<void>
-// }
-
-// export function Diary({meals, setMeals, loadMeals}: DiaryProps ){
-
-//   const toggleMeal = (mealId: string) => {
-//     setMeals((prevMeals) =>
-//       prevMeals.map((meal) =>
-//         meal.id === mealId ? { ...meal, isExpanded: !meal.isExpanded } : meal
-//       )
-//     );
-//   };
-
-//   return (
-//     <>
-//     <title>Diário</title>
-//     <Sidebar />
-//     <SummaryPanel />
-//     </>
-//   )
-// }
-
 import "./Diary.css";
 import { SummaryPanel } from "../../SummaryPanel";
 import { Sidebar } from "../../components/SideBar";
-import type { Meal } from "../../App"
+import { MealCard } from "./MealCard";
+import { type Meal } from "../../App";
+import { useState } from "react";
+import { EditFoodModal } from "./EditFoodModel";
+import axios from "axios";
 
 // Tipagens
 interface DiaryProps {
   meals: Meal[];
-  setMeals: React.Dispatch<React.SetStateAction<Meal[]>>
-  loadMeals: () => Promise<void>
+  setMeals: React.Dispatch<React.SetStateAction<Meal[]>>;
+  loadMeals: () => Promise<void>;
 }
 
-export function Diary({meals, setMeals, loadMeals}: DiaryProps ){
+export interface setMainsProp {
+  mealId: string;
+  foodId: string | null;
+  foodName: string | null;
+  quantityGrams: number | null;
+}
+export interface Body {
+  quantityGrams: number;
+}
 
-  // Função para expandir/recolher a refeição
+export function Diary({ meals, setMeals, loadMeals }: DiaryProps) {
+  const [isEditFoodModalOpen, setIsEditFoodModalOpen] = useState(false);
+  const [editFoodData, setEditFoodData] = useState<[string, number] | []>([]);
+  const [mainMealId, setMainMealId] = useState("");
+  const [mainMealFoodId, setMainMealFoodId] = useState("");
+
   const toggleMeal = (mealId: string) => {
     setMeals((prevMeals) =>
       prevMeals.map((meal) =>
@@ -52,12 +38,52 @@ export function Diary({meals, setMeals, loadMeals}: DiaryProps ){
     );
   };
 
+  const handleSaveEditFood = async (quantity: Body) => {
+    await axios.put(`/meals/${mainMealId}/item/${mainMealFoodId}`, quantity);
+    setIsEditFoodModalOpen(false);
+    await loadMeals();
+  };
+
+  const setMains = ({
+    mealId,
+    foodId,
+    foodName,
+    quantityGrams,
+  }: setMainsProp) => {
+    setMainMealId(mealId);
+    if (foodId) {
+      setMainMealFoodId(foodId);
+      if (foodName && quantityGrams) {
+        setEditFoodData([foodName, quantityGrams]);
+        setIsEditFoodModalOpen(true);
+      }
+    }
+  };
+
+  const removeFood = async (id: string, itemId: string) => {
+    const response = await axios.get<Meal>(`/meals/${id}`)
+
+    const meal = response.data
+
+    const newItems = meal.items.filter(item => item._id !== itemId)
+
+    await axios.put(`/meals/${meal._id}`, { items: newItems})
+
+    await loadMeals()
+  };
+
+  const deleteMeal = async (id: string) => {
+    await axios.delete(`/meals/${id}`)
+    await loadMeals()
+  }
+
+
+
   return (
     <>
-    <title>Diary</title>
-    <Sidebar />
+      <title>Diary</title>
+      <Sidebar />
       <main className="diary-container">
-        {/* Cabeçalho */}
         <header className="diary-header">
           <h2>Quarta, 01 de Janeiro</h2>
           <div className="date-nav">
@@ -66,7 +92,6 @@ export function Diary({meals, setMeals, loadMeals}: DiaryProps ){
           </div>
         </header>
 
-        {/* Ações (Busca e Adicionar) */}
         <div className="diary-actions">
           <div className="search-bar">
             <span className="search-icon">🔍</span>
@@ -75,51 +100,26 @@ export function Diary({meals, setMeals, loadMeals}: DiaryProps ){
           <button className="btn-add-meal">Adicionar Refeicao</button>
         </div>
 
-        {/* Lista de Refeições */}
         <div className="meals-list">
           {meals.map((meal) => (
-            <div key={meal._id} className="meal-section">
-              <div className="meal-header" onClick={() => toggleMeal(meal._id)}>
-                <div className="meal-title-group">
-                  <span className="toggle-icon">
-                    {meal.isExpanded ? "v" : ">"}
-                  </span>
-                  <h3>
-                    {meal.name} ({meal.totalCalories} kcal)
-                  </h3>
-                </div>
-                <div
-                  className="meal-header-actions"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button className="btn-add-item">+</button>
-                  <button className="btn-delete-icon">🗑️</button>
-                </div>
-              </div>
-
-              {meal.isExpanded && meal.items.length > 0 && (
-                <div className="food-items-list">
-                  {meal.items.map((item) => (
-                    <div key={item.foodId._id} className="food-item-card">
-                      <div className="food-info-group">
-                        <div className="food-details">
-                          <span className="food-name">{item.foodId.name}</span>
-                          <span className="food-macros">
-                            ({item.quantityGrams} g, {(item.quantityGrams * item.foodId.caloriesPerGram).toFixed(1)} kcal)
-                          </span>
-                        </div>
-                      </div>
-                      <div className="food-actions">
-                        <button className="btn-edit-icon">✏️</button>
-                        <button className="btn-delete-icon">🗑️</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <MealCard
+              key={meal._id}
+              meal={meal}
+              toggleMeal={toggleMeal}
+              setMains={setMains}
+              removeFood={removeFood}
+              deleteMeal={deleteMeal}
+            />
           ))}
         </div>
+        <EditFoodModal
+          isOpen={isEditFoodModalOpen}
+          onClose={() => {
+            setIsEditFoodModalOpen(false);
+          }}
+          onSave={handleSaveEditFood}
+          editFoodData={editFoodData}
+        />
       </main>
       <SummaryPanel />
     </>

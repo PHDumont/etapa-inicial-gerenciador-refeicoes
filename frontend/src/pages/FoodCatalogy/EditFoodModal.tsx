@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./FoodModal.css";
-import { type Food } from "./FoodCatalogy";
+import { type Food } from "../../App";
 
 interface EditFoodModalProps {
   isOpen: boolean;
