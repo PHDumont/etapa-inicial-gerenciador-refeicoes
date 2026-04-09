@@ -1,8 +1,21 @@
 import Meal from "../models/Meal.js";
 
 class MealController {
+  calculateTotalCalories = async (meal) => {
+    await meal.items.forEach((item) => {
+      const food = item.foodId;
+
+      if (!food) {
+        return res.status(404).json({ error: "Food not found" });
+      }
+
+      let caloriesFood = food.caloriesPerGram * item.quantityGrams;
+      meal.totalCalories += caloriesFood;
+    });
+  }
+
   index = async (req, res) => {
-    const { name, date} = req.query;
+    const { name, date } = req.query;
 
     let filter = {};
 
@@ -11,46 +24,41 @@ class MealController {
     }
 
     if (date) {
-      const dateSearch = new Date(date)
+      const dateSearch = new Date(date);
 
-      const dateStart = new Date(dateSearch)
-      dateStart.setUTCDate(0,0,0,0)
-      const dateEnd = new Date(dateSearch)
-      dateEnd.setUTCDate(23,59,59,999)
+      const dateStart = new Date(dateSearch);
+      dateStart.setUTCDate(0, 0, 0, 0);
+      const dateEnd = new Date(dateSearch);
+      dateEnd.setUTCDate(23, 59, 59, 999);
 
       filter.date = {
         $gte: dateStart,
-        $lte: dateEnd
-      }
+        $lte: dateEnd,
+      };
     }
 
-    const meals = await Meal.find(filter);
+    const meals = await Meal.find(filter).populate("items.foodId");
+
+    meals.forEach((meal) => {
+      this.calculateTotalCalories(meal)
+    });
 
     return res.json(meals);
   };
 
   show = async (req, res) => {
-    const {id} = req.params
-    const meal = await Meal.findById(id).populate('items.foodId')
+    const { id } = req.params;
+    const meal = await Meal.findById(id).populate("items.foodId");
 
     if (!meal) {
       return res.status(404).json({ error: "Meal not found" });
     }
 
-    let total = 0
+    let total = 0;
 
-    meal.items.forEach(item => {
-      const {foodId} = item
-      const food = item.foodId
+    this.calculateTotalCalories(meal)
 
-      if (!food) {
-      return res.status(404).json({ error: "Food not found" });
-    }
-      let caloriesFood = food.caloriesPerGram * item.quantityGrams
-      total += caloriesFood
-    })
-    
-    return res.json([meal, total])
+    return res.json(meal);
   };
 
   create = async (req, res) => {
@@ -91,16 +99,16 @@ class MealController {
   };
 
   delete = async (req, res) => {
-    try{
-      const {id} = req.params
+    try {
+      const { id } = req.params;
 
-    const meal = await Meal.findByIdAndDelete(id)
+      const meal = await Meal.findByIdAndDelete(id);
 
-    if (!meal){
-      return res.status(404).json({ error: "Meal not found" });
-    }
+      if (!meal) {
+        return res.status(404).json({ error: "Meal not found" });
+      }
 
-    return res.json()
+      return res.json();
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
@@ -108,7 +116,7 @@ class MealController {
       }
       return res.status(500).json({ error: "Error deleting" });
     }
-  }
+  };
 }
 
 export default new MealController();

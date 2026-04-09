@@ -1,4 +1,4 @@
-import type { Food } from "./FoodCatalogy";
+import type { Food } from "../../App";
 
 import pencil from "../../assets/pencil.png"
 import trash from "../../assets/trash.png"

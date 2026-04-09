@@ -1,0 +1,189 @@
+.diary-container {
+  padding: 2rem;
+  overflow-y: auto;
+  font-family: sans-serif;
+}
+
+.diary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.diary-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.date-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Ações (Busca e Adicionar) */
+.diary-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #888;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  outline: none;
+  width: 100%;
+  color: #555;
+}
+
+.btn-add-meal {
+  align-self: flex-start;
+  background-color: #00e676; /* Verde vibrante da imagem */
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-add-meal:hover {
+  opacity: 0.8;
+}
+
+/* Refeições */
+.meals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.meal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.meal-title-group h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.toggle-icon {
+  font-family: monospace;
+  font-size: 1.2rem;
+  color: #333;
+  width: 16px; /* Para manter o alinhamento não importa se é v ou > */
+  text-align: center;
+}
+
+.meal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-add-item {
+  background-color: #2e7d32; /* Verde escuro do botão + */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Lista de Alimentos */
+.food-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding-left: 2.5rem; /* Alinhamento visual abaixo do título */
+}
+
+.food-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #eeeeee; /* Cinza claro do card */
+  padding: 0.8rem 1rem;
+  border-radius: 24px; /* Bordas bem arredondadas */
+}
+
+.food-info-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.food-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.food-name {
+  font-size: 0.95rem;
+  color: #111;
+}
+
+.food-macros {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.food-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-edit-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+.btn-delete-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #ef5350; /* Tom avermelhado para lixeira */
+  opacity: 0.9;
+}

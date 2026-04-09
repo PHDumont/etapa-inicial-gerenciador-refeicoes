@@ -1,3 +1,4 @@
+import "./Sidebar.css"
 import { NavLink } from "react-router";
 
 export function Sidebar() {
@@ -5,8 +6,19 @@ export function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-logo">Meal Tracker</div>
       <ul className="nav-menu">
-        <NavLink className="nav-item" to="/diary">Diário</NavLink>
-        <NavLink className="nav-item active" to="/food-catalog">Catálogo de Alimentos</NavLink>
+        <NavLink 
+          to="/diary"
+          className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} 
+        >
+          Diário
+        </NavLink>
+        
+        <NavLink 
+          to="/food-catalogy"
+          className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} 
+        >
+          Catálogo de Alimentos
+        </NavLink>
       </ul>
     </aside>
   );

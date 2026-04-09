@@ -1,7 +1,6 @@
 .main-content {
   padding: 2rem;
   overflow-y: auto;
-  /* Permite rolar apenas a área central */
 }
 
 .page-header {
@@ -11,7 +10,6 @@
   margin-bottom: 2rem;
 }
 
-/* O layout em grade para os cartões de comida */
 .food-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

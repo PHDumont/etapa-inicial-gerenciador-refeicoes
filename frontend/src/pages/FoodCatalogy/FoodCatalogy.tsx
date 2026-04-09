@@ -3,16 +3,10 @@ import "./FoodCatalogy.css";
 import FoodModal, { type NewFoodData } from "./FoodModal";
 import { FoodCard } from "./FoodCard";
 import axios from "axios";
-import { Sidebar } from "../Sidebar";
+import { Sidebar } from "../../components/SideBar";
 import { SummaryPanel } from "../../SummaryPanel";
 import EditFoodModal from "./EditFoodModal";
-
-export interface Food {
-  _id: string;
-  name: string;
-  caloriesPerGram: number;
-  category: string;
-}
+import {type Food } from "../../App";
 
 interface FoodCatalogyProps {
   foods: Food[];
