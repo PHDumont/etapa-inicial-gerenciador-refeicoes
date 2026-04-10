@@ -27,9 +27,9 @@ class MealController {
       const dateSearch = new Date(date);
 
       const dateStart = new Date(dateSearch);
-      dateStart.setUTCDate(0, 0, 0, 0);
+      dateStart.setUTCHours(0, 0, 0, 0);
       const dateEnd = new Date(dateSearch);
-      dateEnd.setUTCDate(23, 59, 59, 999);
+      dateEnd.setUTCHours(23, 59, 59, 999);
 
       filter.date = {
         $gte: dateStart,

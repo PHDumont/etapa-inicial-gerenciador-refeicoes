@@ -46,7 +46,7 @@ function MealModal({
 
       setFoodBlocks(loadedBlocks);
       setName(meal.name);
-      setDateSelect(dayjs(meal.date).format("YYYY-MM-DD"));
+      setDateSelect(meal.date.split("T")[0]);
     } else {
       setName("");
       setDateSelect(dayjs().format("YYYY-MM-DD"));

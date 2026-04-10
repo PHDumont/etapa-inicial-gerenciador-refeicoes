@@ -29,7 +29,7 @@ export interface foodId {
 
 function App() {
   const [foods, setFoods] = useState<Food[]>([]);
-  const [meals, setMeals] = useState<Meal[]>([]);
+  const [, setMeals] = useState<Meal[]>([]);
 
   const loadFoods = async () => {
     const response = await axios.get<Food[]>("/foods");
@@ -60,7 +60,7 @@ function App() {
         path="diary"
         element={
           <div className="container">
-            <Diary meals={meals} loadMeals={loadMeals} setMeals={setMeals} foods={foods} />
+            <Diary loadMeals={loadMeals} setMeals={setMeals} foods={foods} />
           </div>
         }
       />

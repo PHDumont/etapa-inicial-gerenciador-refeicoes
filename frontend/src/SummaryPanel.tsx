@@ -1,35 +1,66 @@
-import "./SummaryPanel.css"
+import { useEffect, useState } from "react";
+import axios from "axios";
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
+import "./SummaryPanel.css";
+import { type Meal } from "./App"; 
 
-export function SummaryPanel(){
+dayjs.locale("pt-br");
+
+export function SummaryPanel() {
+  const today = dayjs(); 
+  const [summaryMeals, setSummaryMeals] = useState<Meal[]>([]);
+
+  useEffect(() => {
+    const fetchTodayMeals = async () => {
+      try {
+        const formattedDate = today.format("YYYY-MM-DD");
+        
+        const response = await axios.get<Meal[]>("/meals", {
+          params: { date: formattedDate },
+        });
+        
+        setSummaryMeals(response.data);
+      } catch (error) {
+        console.error("Error searching for meals in the summary.:", error);
+      }
+    };
+
+    fetchTodayMeals();
+  }, [summaryMeals]);
+
+  const dateFormat = today.format("dddd, DD [de] MMMM");
+  const dateCapitalized = dateFormat.charAt(0).toUpperCase() + dateFormat.slice(1);
+
   return (
     <aside className="summary-panel">
       <div className="summary-header">
-        <h2>Resumo Diário</h2>
-        <p className="summary-date">Quarta, 01 de Janeiro</p>
+        <h2>Resumo de Hoje</h2>
+        <p className="summary-date">{dateCapitalized}</p>
       </div>
 
       <div className="summary-card">
-
         <div className="card-bottom-section">
-          <h4>Refeicoes do Dia</h4>
+          <h4>Refeições do Dia</h4>
           
-          <ul className="meal-list">
-            <li className="meal-item">
-              <span className="meal-name">Café da Manha</span>
-              <span className="meal-calories">350 kcal</span>
-            </li>
-            <li className="meal-item">
-              <span className="meal-name">Almoco</span>
-              <span className="meal-calories">650 kcal</span>
-            </li>
-            <li className="meal-item">
-              <span className="meal-name">Lanche</span>
-              <span className="meal-calories">150 kcal</span>
-            </li>
-          </ul>
+          {summaryMeals.length === 0 ? (
+            <p style={{ fontSize: "14px", color: "#666", marginTop: "10px" }}>
+              Nenhuma refeição registrada hoje.
+            </p>
+          ) : (
+            <ul className="meal-list">
+              {summaryMeals.map((meal) => (
+                <li key={meal._id} className="meal-item">
+                  <span className="meal-name">{meal.name}</span>
+                  <span className="meal-calories">
+                    {meal.totalCalories ? Math.round(meal.totalCalories) : 0} kcal
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        
       </div>
     </aside>
   );
-};
+}
