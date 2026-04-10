@@ -1,5 +1,5 @@
 import type { Food } from "../../App";
-import type { HandleUpdateBlockType } from "./AddMealModal";
+import type { HandleUpdateBlockType } from "./MealModal";
 
 interface FoodBlockProps {
   block: Block;
@@ -22,7 +22,7 @@ export function FoodBlock({
   foods,
   handleUpdateBlock,
   handleRemoveBlock,
-  length,
+  length
 }: FoodBlockProps) {
   return (
     <div className="food-block" key={block.id}>

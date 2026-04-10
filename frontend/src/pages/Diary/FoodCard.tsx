@@ -1,20 +1,20 @@
-import type { foodId } from "../../App";
+import type { foodId, Meal } from "../../App";
 import type { setMainsProp } from "./Diary";
 import pencil from "../../assets/pencil.png"
 import trash from "../../assets/trash.png"
 
 interface FoodCartProps {
   item: foodId
-  id: string
-  setMains: ({mealId, foodId, foodName, quantityGrams}: setMainsProp) => void
+  meal: Meal
+  setMains: ({meal, foodId, foodName, quantityGrams}: setMainsProp) => void
   removeFood: (id: string, itemId: string) => Promise<void>
 }
 
-export function FoodCard({item, id, setMains, removeFood}: FoodCartProps) {
+export function FoodCard({item, meal, setMains, removeFood}: FoodCartProps) {
 
   function handleEdit(){
     setMains({
-      mealId: id,
+      meal,
       foodId: item._id,
       foodName: item.foodId.name,
       quantityGrams: item.quantityGrams
@@ -24,12 +24,12 @@ export function FoodCard({item, id, setMains, removeFood}: FoodCartProps) {
   function handleDelete(){
     if(window.confirm('Tem certeza que deseja excluir?')){
       setMains({
-        mealId: id,
+        meal,
         foodId:item._id,
         foodName: null,
         quantityGrams: null
       })
-      removeFood(id, item._id)
+      removeFood(meal._id, item._id)
     }
   }
 

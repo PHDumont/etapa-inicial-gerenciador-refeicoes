@@ -6,13 +6,14 @@ import trash from "../../assets/trash.png"
 interface MealCardProps {
   meal: Meal
   toggleMeal: (_id: string) => void
-  setMains: ({mealId, foodId, foodName, quantityGrams}: setMainsProp) => void
+  setMains: ({meal, foodId, foodName, quantityGrams}: setMainsProp) => void
   removeFood: (id: string, itemId: string) => Promise<void>
   deleteMeal: (id: string) => Promise<void>
+  openMealModal: (type: boolean, meal:Meal) => void
 }
 
 
-export function MealCard({meal, toggleMeal, setMains, removeFood, deleteMeal}: MealCardProps) {
+export function MealCard({meal, toggleMeal, setMains, removeFood, deleteMeal, openMealModal}: MealCardProps) {
 
   function handleDelete(){
     if(window.confirm('Tem certeza que deseja excluir?')){
@@ -33,7 +34,7 @@ export function MealCard({meal, toggleMeal, setMains, removeFood, deleteMeal}: M
           className="meal-header-actions"
           onClick={(e) => e.stopPropagation()}
         >
-          <button className="btn-add-item">+</button>
+          <button className="btn-add-item" onClick={() => openMealModal(true, meal)}>+</button>
           <button className="icon-btn" onClick={handleDelete}> <img className="icon" src={trash}/> </button>
         </div>
       </div>
@@ -41,7 +42,7 @@ export function MealCard({meal, toggleMeal, setMains, removeFood, deleteMeal}: M
       {meal.isExpanded && meal.items.length > 0 && (
         <div className="food-items-list">
           {meal.items.map((item) => (
-            <FoodCard key={item.foodId._id} item={item} id={meal._id} setMains={setMains} removeFood={removeFood}  />
+            <FoodCard key={item.foodId._id} item={item} meal={meal} setMains={setMains} removeFood={removeFood}  />
           ))}
         </div>
       )}

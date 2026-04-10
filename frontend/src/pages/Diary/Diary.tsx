@@ -6,7 +6,7 @@ import { type Food, type Meal } from "../../App";
 import { useState } from "react";
 import { EditFoodModal } from "./EditFoodModal";
 import axios from "axios";
-import AddMealModal from "./AddMealModal";
+import MealModal from "./MealModal";
 
 // Tipagens
 interface DiaryProps {
@@ -17,7 +17,7 @@ interface DiaryProps {
 }
 
 export interface setMainsProp {
-  mealId: string;
+  meal: Meal;
   foodId: string | null;
   foodName: string | null;
   quantityGrams: number | null;
@@ -26,12 +26,23 @@ export interface Body {
   quantityGrams: number;
 }
 
+export interface MealData {
+  _id: string | null
+  name: string;
+  date: string;
+  items: item[]
+}
+interface item{
+  foodId: string, quantityGrams: number
+}
+
 export function Diary({ meals, setMeals, loadMeals, foods }: DiaryProps) {
   const [isEditFoodModalOpen, setIsEditFoodModalOpen] = useState(false);
-  const [isMealModalOpen, setIsMealModalOpen] = useState(true);
+  const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const [editFoodData, setEditFoodData] = useState<[string, number] | []>([]);
-  const [mainMealId, setMainMealId] = useState("");
+  const [mainMeal, setMainMeal] = useState<Meal | null>(null);
   const [mainMealFoodId, setMainMealFoodId] = useState("");
+  const [isEdit, setIsEdit] = useState<boolean>(false)
 
   const toggleMeal = (mealId: string) => {
     setMeals((prevMeals) =>
@@ -42,24 +53,30 @@ export function Diary({ meals, setMeals, loadMeals, foods }: DiaryProps) {
   };
 
   const handleSaveEditFood = async (quantity: Body) => {
-    await axios.put(`/meals/${mainMealId}/item/${mainMealFoodId}`, quantity);
+    await axios.put(`/meals/${mainMeal?._id}/item/${mainMealFoodId}`, quantity);
     setIsEditFoodModalOpen(false);
     await loadMeals();
   };
 
-  const handleSaveNewMeal = async (meal: unknown) => {
-    await axios.post("/meals", meal)
+  const handleSaveNewMeal = async (meal: MealData, saveEdit: boolean) => {
+    if (saveEdit){
+      await axios.put(`/meals/${meal._id}`, meal)
+    }else {
+      await axios.post("/meals", meal)
+    }
+    
     setIsMealModalOpen(false);
+    setMainMeal(null)
     await loadMeals()
   }
 
   const setMains = ({
-    mealId,
+    meal,
     foodId,
     foodName,
     quantityGrams,
   }: setMainsProp) => {
-    setMainMealId(mealId);
+    setMainMeal(meal);
     if (foodId) {
       setMainMealFoodId(foodId);
       if (foodName && quantityGrams) {
@@ -68,6 +85,12 @@ export function Diary({ meals, setMeals, loadMeals, foods }: DiaryProps) {
       }
     }
   };
+
+  const openMealModal = (type: boolean, meal: Meal | null) => {
+    setIsMealModalOpen(true)
+    setMainMeal(meal? meal : null)
+    setIsEdit(type)
+  }
 
   const removeFood = async (id: string, itemId: string) => {
     const response = await axios.get<Meal>(`/meals/${id}`);
@@ -104,7 +127,7 @@ export function Diary({ meals, setMeals, loadMeals, foods }: DiaryProps) {
             <span className="search-icon">🔍</span>
             <input type="text" placeholder="Buscar Refeicao..." />
           </div>
-          <button className="btn-add-meal" onClick={() => setIsMealModalOpen(true)}>Adicionar Refeicao</button>
+          <button className="btn-add-meal" onClick={() => openMealModal(false, null)}>Adicionar Refeicao</button>
         </div>
 
         <div className="meals-list">
@@ -116,6 +139,8 @@ export function Diary({ meals, setMeals, loadMeals, foods }: DiaryProps) {
               setMains={setMains}
               removeFood={removeFood}
               deleteMeal={deleteMeal}
+              openMealModal={openMealModal}
+
             />
           ))}
         </div>
@@ -127,13 +152,15 @@ export function Diary({ meals, setMeals, loadMeals, foods }: DiaryProps) {
           onSave={handleSaveEditFood}
           editFoodData={editFoodData}
         />
-        <AddMealModal
+        <MealModal
           isOpen={isMealModalOpen}
           onClose={() => {
             setIsMealModalOpen(false);
           }}
           onSave={handleSaveNewMeal}
           foods={foods}
+          isEdit={isEdit}
+          meal={mainMeal}
         />
       </main>
       <SummaryPanel />

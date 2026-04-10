@@ -16,7 +16,7 @@ export interface Food {
 export interface Meal {
   _id: string;
   name: string;
-  date: Date;
+  date: string;
   totalCalories: number;
   isExpanded: boolean;
   items: foodId[];

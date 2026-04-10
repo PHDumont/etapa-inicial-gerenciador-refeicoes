@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import type { Food } from "../../App";
+import type { Food, Meal } from "../../App";
 import { FoodBlock } from "./FoodBlock";
+import type { MealData } from "./Diary";
 
-interface AddMealModalProps {
+interface MealModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (mealData: unknown) => Promise<void>;
+  onSave: (mealData: MealData, isEdit: boolean) => Promise<void>;
   foods: Food[];
+  isEdit: boolean;
+  meal: Meal | null;
 }
 
 export type HandleUpdateBlockType = (
@@ -16,14 +19,40 @@ export type HandleUpdateBlockType = (
   value: string | number,
 ) => void;
 
-function AddMealModal({ isOpen, onClose, onSave, foods }: AddMealModalProps) {
+function MealModal({
+  isOpen,
+  onClose,
+  onSave,
+  foods,
+  isEdit,
+  meal,
+}: MealModalProps) {
   const [name, setName] = useState("");
-  const dateToday = dayjs().format("YYYY-MM-DD");
-  const [dateSelect, setDateSelect] = useState(dateToday);
+  const [dateSelect, setDateSelect] = useState("");
 
   const [foodBlocks, setFoodBlocks] = useState([
     { id: Date.now(), foodId: "", quantityGrams: "" },
   ]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (meal && isEdit) {
+      const loadedBlocks = meal.items.map((item) => ({
+        id: Math.random(),
+        foodId: item.foodId._id,
+        quantityGrams: item.quantityGrams.toString(),
+      }));
+
+      setFoodBlocks(loadedBlocks);
+      setName(meal.name);
+      setDateSelect(dayjs(meal.date).format("YYYY-MM-DD"));
+    } else {
+      setName("");
+      setDateSelect(dayjs().format("YYYY-MM-DD"));
+      setFoodBlocks([{ id: Date.now(), foodId: "", quantityGrams: "" }]);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -49,12 +78,6 @@ function AddMealModal({ isOpen, onClose, onSave, foods }: AddMealModalProps) {
     );
   };
 
-  const reset = () => {
-    setName("");
-    setDateSelect(dateToday);
-    setFoodBlocks([{ id: Date.now(), foodId: "", quantityGrams: "" }]);
-  };
-
   const handleSave = () => {
     if (!name) {
       alert("Preencha o nome da refeição!");
@@ -70,7 +93,10 @@ function AddMealModal({ isOpen, onClose, onSave, foods }: AddMealModalProps) {
       return;
     }
 
+    const id = meal ? meal._id : null
+
     const mealDataToSave = {
+      _id: id,
       name,
       date: dateSelect,
       items: validItems.map((item) => ({
@@ -79,19 +105,17 @@ function AddMealModal({ isOpen, onClose, onSave, foods }: AddMealModalProps) {
       })),
     };
 
-    onSave(mealDataToSave);
-    reset()
+    onSave(mealDataToSave, isEdit);
   };
 
   const handleClose = () => {
     onClose();
-    reset()
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Criar Refeição</h3>
+        <h3>{isEdit ? "Editar" : "Criar"} Refeição</h3>
 
         <div className="form-group">
           <label>Nome da Refeição</label>
@@ -145,4 +169,4 @@ function AddMealModal({ isOpen, onClose, onSave, foods }: AddMealModalProps) {
   );
 }
 
-export default AddMealModal;
+export default MealModal;
