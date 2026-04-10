@@ -60,7 +60,7 @@ function App() {
         path="diary"
         element={
           <div className="container">
-            <Diary meals={meals} loadMeals={loadMeals} setMeals={setMeals} />
+            <Diary meals={meals} loadMeals={loadMeals} setMeals={setMeals} foods={foods} />
           </div>
         }
       />

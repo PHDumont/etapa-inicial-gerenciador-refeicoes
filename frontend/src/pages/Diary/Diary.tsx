@@ -2,16 +2,18 @@ import "./Diary.css";
 import { SummaryPanel } from "../../SummaryPanel";
 import { Sidebar } from "../../components/SideBar";
 import { MealCard } from "./MealCard";
-import { type Meal } from "../../App";
+import { type Food, type Meal } from "../../App";
 import { useState } from "react";
-import { EditFoodModal } from "./EditFoodModel";
+import { EditFoodModal } from "./EditFoodModal";
 import axios from "axios";
+import AddMealModal from "./AddMealModal";
 
 // Tipagens
 interface DiaryProps {
   meals: Meal[];
   setMeals: React.Dispatch<React.SetStateAction<Meal[]>>;
   loadMeals: () => Promise<void>;
+  foods: Food[]
 }
 
 export interface setMainsProp {
@@ -24,8 +26,9 @@ export interface Body {
   quantityGrams: number;
 }
 
-export function Diary({ meals, setMeals, loadMeals }: DiaryProps) {
+export function Diary({ meals, setMeals, loadMeals, foods }: DiaryProps) {
   const [isEditFoodModalOpen, setIsEditFoodModalOpen] = useState(false);
+  const [isMealModalOpen, setIsMealModalOpen] = useState(true);
   const [editFoodData, setEditFoodData] = useState<[string, number] | []>([]);
   const [mainMealId, setMainMealId] = useState("");
   const [mainMealFoodId, setMainMealFoodId] = useState("");
@@ -44,6 +47,12 @@ export function Diary({ meals, setMeals, loadMeals }: DiaryProps) {
     await loadMeals();
   };
 
+  const handleSaveNewMeal = async (meal: unknown) => {
+    await axios.post("/meals", meal)
+    setIsMealModalOpen(false);
+    await loadMeals()
+  }
+
   const setMains = ({
     mealId,
     foodId,
@@ -61,23 +70,21 @@ export function Diary({ meals, setMeals, loadMeals }: DiaryProps) {
   };
 
   const removeFood = async (id: string, itemId: string) => {
-    const response = await axios.get<Meal>(`/meals/${id}`)
+    const response = await axios.get<Meal>(`/meals/${id}`);
 
-    const meal = response.data
+    const meal = response.data;
 
-    const newItems = meal.items.filter(item => item._id !== itemId)
+    const newItems = meal.items.filter((item) => item._id !== itemId);
 
-    await axios.put(`/meals/${meal._id}`, { items: newItems})
+    await axios.put(`/meals/${meal._id}`, { items: newItems });
 
-    await loadMeals()
+    await loadMeals();
   };
 
   const deleteMeal = async (id: string) => {
-    await axios.delete(`/meals/${id}`)
-    await loadMeals()
-  }
-
-
+    await axios.delete(`/meals/${id}`);
+    await loadMeals();
+  };
 
   return (
     <>
@@ -97,7 +104,7 @@ export function Diary({ meals, setMeals, loadMeals }: DiaryProps) {
             <span className="search-icon">🔍</span>
             <input type="text" placeholder="Buscar Refeicao..." />
           </div>
-          <button className="btn-add-meal">Adicionar Refeicao</button>
+          <button className="btn-add-meal" onClick={() => setIsMealModalOpen(true)}>Adicionar Refeicao</button>
         </div>
 
         <div className="meals-list">
@@ -119,6 +126,14 @@ export function Diary({ meals, setMeals, loadMeals }: DiaryProps) {
           }}
           onSave={handleSaveEditFood}
           editFoodData={editFoodData}
+        />
+        <AddMealModal
+          isOpen={isMealModalOpen}
+          onClose={() => {
+            setIsMealModalOpen(false);
+          }}
+          onSave={handleSaveNewMeal}
+          foods={foods}
         />
       </main>
       <SummaryPanel />

@@ -30,7 +30,6 @@
   color: #333;
 }
 
-/* Ações (Busca e Adicionar) */
 .diary-actions {
   display: flex;
   flex-direction: column;
@@ -56,7 +55,7 @@
 
 .btn-add-meal {
   align-self: flex-start;
-  background-color: #00e676; /* Verde vibrante da imagem */
+  background-color: #00e676;
   color: #111;
   border: none;
   border-radius: 8px;
@@ -102,7 +101,7 @@
   font-family: monospace;
   font-size: 1.2rem;
   color: #333;
-  width: 16px; /* Para manter o alinhamento não importa se é v ou > */
+  width: 16px;
   text-align: center;
 }
 
@@ -113,7 +112,7 @@
 }
 
 .btn-add-item {
-  background-color: #2e7d32; /* Verde escuro do botão + */
+  background-color: #2e7d32;
   color: white;
   border: none;
   border-radius: 50%;
@@ -126,22 +125,21 @@
   cursor: pointer;
 }
 
-/* Lista de Alimentos */
 .food-items-list {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
   margin-top: 1rem;
-  padding-left: 2.5rem; /* Alinhamento visual abaixo do título */
+  padding-left: 2.5rem;
 }
 
 .food-item-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #eeeeee; /* Cinza claro do card */
+  background-color: #eeeeee;
   padding: 0.8rem 1rem;
-  border-radius: 24px; /* Bordas bem arredondadas */
+  border-radius: 24px;
 }
 
 .food-info-group {
@@ -180,4 +178,23 @@
 .icon {
   max-width: 1.4rem;
   max-height: 1.4rem;
+}
+
+.modal-actions-add {
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.food-blocks {
+  max-height: 350px;
+  overflow-Y: auto;
+  padding-right: 5px;
+  border-top: 1px solid #eee;
+  padding-top: 15px
+}
+
+.food-block {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px dashed #ccc;
 }
