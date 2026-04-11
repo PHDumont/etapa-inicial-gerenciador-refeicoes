@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Routes, Route } from "react-router";
+import { Routes, Route, Navigate } from "react-router";
 import axios from "axios";
 import "./App.css";
 
@@ -48,6 +48,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/diary" replace />} />
       <Route
         path="food-catalogy"
         element={
@@ -59,6 +60,7 @@ function App() {
         }
       />
       <Route
+        index={true}
         path="diary"
         element={
           <div className="container">
