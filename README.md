@@ -1,3 +1,4 @@
+![Etapa Inical](https://github.com/user-attachments/assets/12bea5a6-4cbc-44ec-a118-ae415116a86b)
 # Meal Tracker
 
 Gerenciador de refeições: cadastro de alimentos, diário por data, resumo calórico e API REST com MongoDB.
@@ -139,8 +140,7 @@ etapa-inicial-gerenciador-refeicoes/
 ├── docker-compose.yml
 └── data-container/   # volumes Docker (gitignored em parte; ver .gitignore)
 ```
-
-![Etapa Inicial](https://github.com/user-attachments/assets/535e2905-64a0-4e5e-b7ae-a6b0ff2d4ec6)
+![Etapa Inical](https://github.com/user-attachments/assets/33b37ea6-f3c3-45fa-8c0d-da72fd24c393)
 
 ## Versão
 
