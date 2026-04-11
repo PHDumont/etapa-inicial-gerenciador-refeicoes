@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { foodId, Meal } from "../../App";
 import type { setMainsProp } from "./Diary";
+import { formatLineItemKcal } from "../../utils/nutrition";
 import pencil from "../../assets/pencil.png";
 import trash from "../../assets/trash.png";
 
@@ -45,7 +46,10 @@ export const FoodCard = memo(function FoodCard({
           <span className="food-name">{item.foodId.name}</span>
           <span className="food-macros">
             ({item.quantityGrams} g,{" "}
-            {(item.quantityGrams * item.foodId.caloriesPerGram).toFixed(1)}{" "}
+            {formatLineItemKcal(
+              item.quantityGrams,
+              item.foodId.caloriesPerGram,
+            )}{" "}
             kcal)
           </span>
         </div>

@@ -6,7 +6,7 @@ on:
 
 jobs:
   backend:
-    name: Backend — instalar, sintaxe JS
+    name: Backend — instalar, sintaxe, testes
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,8 +28,11 @@ jobs:
       - name: Verificação estática (sintaxe JavaScript)
         run: find src -name '*.js' -print0 | xargs -0 -I{} node --check {}
 
+      - name: Testes (Vitest + MongoDB Memory Server)
+        run: yarn test
+
   frontend:
-    name: Frontend — instalar, lint, build, testes
+    name: Frontend — instalar, lint, build, testes (unit + RTL)
     runs-on: ubuntu-latest
     defaults:
       run:

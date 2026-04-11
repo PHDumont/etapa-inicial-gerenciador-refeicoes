@@ -3,9 +3,6 @@ import routes from "./routes.js"
 import cors from "cors"
 import compression from "compression"
 
-import "./database/index.js"
-
-
 class App {
   constructor(){
     this.server = express()

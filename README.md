@@ -28,7 +28,7 @@ A aplicação permite registrar refeições com base em alimentos previamente ca
 
 - **Backend:** Node.js, Express, Mongoose, MongoDB
 - **Frontend:** TypeScript, React, Vite, React Router, Axios, Day.js
-- **Ferramentas:** Yarn, Docker Compose, ESLint (frontend)
+- **Ferramentas:** Yarn, Docker Compose, ESLint, Vitest, Testing Library, MongoDB Memory Server (testes de API)
 
 ## Pré-requisitos
 
@@ -37,6 +37,8 @@ A aplicação permite registrar refeições com base em alimentos previamente ca
 - [Docker](https://www.docker.com/) e Docker Compose (para subir o MongoDB localmente)
 
 O backend espera MongoDB em `localhost:27017`, com usuário e senha `admin` / `admin`, alinhados ao `docker-compose.yml` do repositório.
+
+Em **testes automatizados**, a conexão usa `MONGODB_URI` quando definida (o Vitest sobe um MongoDB em memória via `mongodb-memory-server` e define essa variável automaticamente). Para desenvolvimento manual, continue usando o Docker Compose como acima.
 
 ## Instalação
 
@@ -117,9 +119,27 @@ yarn preview   # opcional: servir a pasta dist
 ## Como Usar
 
 1. Cadastre alimentos (nome, calorias por grama e categoria).
-2. No diário, escolha a data, crie refeições e adicione alimentos com quantidade em gramas.
+2. No diário, escolha a data, use a busca por nome para filtrar refeições do dia, crie refeições e adicione alimentos com quantidade em gramas (mínimo 1 g, alinhado à API).
 3. Use o painel lateral para ver o resumo calórico do dia atual.
 4. Edite quantidades ou remova itens/refeições conforme necessário.
+
+## Testes automatizados
+
+Os testes cobrem regras de negócio (por exemplo, soma de calorias da refeição, validação de formulários), entradas inválidas, casos limite e fluxos de cadastro, listagem, busca, remoção e validação.
+
+**Backend** (`backend/test/`): Vitest com Supertest e MongoDB em memória — unidade de `calculateTotalCalories` e integração HTTP em `/foods` e `/meals`.
+
+**Frontend** (`frontend/src/**/*.test.ts(x)`): Vitest em ambiente jsdom — funções em `src/utils/nutrition.ts` (cálculo de kcal por linha, parsing de refeição/alimento, filtro de busca no diário) e um fluxo de cadastro no `FoodModal` com React Testing Library.
+
+```bash
+cd backend
+yarn test
+```
+
+```bash
+cd frontend
+yarn test
+```
 
 ## Lint
 
@@ -130,17 +150,24 @@ cd frontend
 yarn lint
 ```
 
+## Integração contínua (GitHub Actions)
+
+O workflow em [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda em cada push e pull request:
+
+- **Backend:** instala dependências, verifica sintaxe JavaScript com `node --check` e executa `yarn test`.
+- **Frontend:** instala dependências, ESLint, `yarn build` e `yarn test`.
+
 ## Estrutura do Projeto
 
 ```
 etapa-inicial-gerenciador-refeicoes/
-├── backend/          # API Express + Mongoose
-├── frontend/         # React + Vite + TypeScript
+├── .github/workflows/ # CI (GitHub Actions)
+├── backend/           # API Express + Mongoose
+│   └── test/          # Testes Vitest (API + unidade)
+├── frontend/          # React + Vite + TypeScript
 ├── docker-compose.yml
-└── data-container/   # volumes Docker (gitignored em parte; ver .gitignore)
+└── data-container/    # volumes Docker (gitignored em parte; ver .gitignore)
 ```
-
-![Etapa Inicial](https://github.com/user-attachments/assets/535e2905-64a0-4e5e-b7ae-a6b0ff2d4ec6)
 
 ## Versão
 

@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import type { Food, Meal } from "../../App";
 import { FoodBlock } from "./FoodBlock";
 import type { MealData } from "./Diary";
+import { parseMealPayload } from "../../utils/nutrition";
 
 interface MealModalProps {
   isOpen: boolean;
@@ -79,30 +80,25 @@ function MealModal({
   };
 
   const handleSave = () => {
-    if (!name) {
-      alert("Preencha o nome da refeição!");
+    const parsed = parseMealPayload(name, foodBlocks);
+    if (!parsed.ok) {
+      if (parsed.reason === "EMPTY_NAME") {
+        alert("Preencha o nome da refeição!");
+      } else if (parsed.reason === "NO_ITEMS") {
+        alert("Adicione pelo menos um alimento preenchido!");
+      } else {
+        alert("Informe quantidades válidas (mínimo 1 g).");
+      }
       return;
     }
 
-    const validItems = foodBlocks.filter(
-      (b) => b.foodId !== "" && b.quantityGrams !== "",
-    );
-
-    if (validItems.length === 0) {
-      alert("Adicione pelo menos um alimento preenchido!");
-      return;
-    }
-
-    const id = meal ? meal._id : null
+    const id = meal ? meal._id : null;
 
     const mealDataToSave = {
       _id: id,
-      name,
+      name: name.trim(),
       date: dateSelect,
-      items: validItems.map((item) => ({
-        foodId: item.foodId,
-        quantityGrams: Number(item.quantityGrams),
-      })),
+      items: parsed.items,
     };
 
     onSave(mealDataToSave, isEdit);

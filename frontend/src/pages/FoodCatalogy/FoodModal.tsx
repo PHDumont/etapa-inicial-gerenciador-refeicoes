@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import "./FoodModal.css"
+import "./FoodModal.css";
+import { parseNewFoodForm } from "../../utils/nutrition";
 
 export interface NewFoodData {
   name: string;
@@ -21,16 +22,17 @@ function FoodModal({ isOpen, onClose, onSave }: FoodModalProps) {
   if (!isOpen) return null;
 
   const handleSave = () => {
-    if (!name || !category || calories === '') {
-      alert("Preencha todos os campos!");
+    const parsed = parseNewFoodForm(name, category, calories);
+    if (!parsed.ok) {
+      if (parsed.reason === "EMPTY_FIELDS") {
+        alert("Preencha todos os campos!");
+      } else {
+        alert("Calorias inválidas (use um valor ≥ 0).");
+      }
       return;
     }
 
-    onSave({
-      name,
-      category,
-      caloriesPerGram: Number(calories)
-    });
+    onSave(parsed.data);
 
     setName('');
     setCategory('');

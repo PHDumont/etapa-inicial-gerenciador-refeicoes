@@ -3,7 +3,8 @@ import { SummaryPanel } from "../../SummaryPanel";
 import { Sidebar } from "../../components/SideBar";
 import { MealCard } from "./MealCard";
 import { type Food, type Meal } from "../../App";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { filterMealsByName } from "../../utils/nutrition";
 import { EditFoodModal } from "./EditFoodModal";
 import axios from "axios";
 import MealModal from "./MealModal";
@@ -50,6 +51,12 @@ export function Diary({ foods }: DiaryProps) {
   const [dayMeals, setDayMeals] = useState<Meal[]>([]);
   const [daySelected, setDaySelected] = useState(dayjs());
   const [summaryRefresh, setSummaryRefresh] = useState(0);
+  const [mealSearch, setMealSearch] = useState("");
+
+  const visibleMeals = useMemo(
+    () => filterMealsByName(dayMeals, mealSearch),
+    [dayMeals, mealSearch],
+  );
 
   const bumpSummary = useCallback(() => {
     setSummaryRefresh((n) => n + 1);
@@ -170,7 +177,13 @@ export function Diary({ foods }: DiaryProps) {
         <div className="diary-actions">
           <div className="search-bar">
             <span className="search-icon">🔍</span>
-            <input type="text" placeholder="Buscar Refeição..." />
+            <input
+              type="text"
+              placeholder="Buscar Refeição..."
+              value={mealSearch}
+              onChange={(e) => setMealSearch(e.target.value)}
+              aria-label="Buscar refeição por nome"
+            />
           </div>
           <button
             className="btn-add-meal"
@@ -181,7 +194,7 @@ export function Diary({ foods }: DiaryProps) {
         </div>
 
         <div className="meals-list">
-          {dayMeals.map((meal) => (
+          {visibleMeals.map((meal) => (
             <MealCard
               key={meal._id}
               meal={meal}
