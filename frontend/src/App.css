@@ -34,3 +34,8 @@ body {
   height: 100vh;
 }
 
+.route-loading {
+  padding: 1rem;
+  color: var(--text-muted);
+}
+

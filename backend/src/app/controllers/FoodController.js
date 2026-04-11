@@ -21,14 +21,15 @@ class FoodController {
     const sortOrder = order || "name";
     const sortDirection = sort === "desc" ? -1 : 1;
 
-    const foods = await Food.find(filter).sort({ [sortOrder]: sortDirection });
+    const foods = await Food.find(filter)
+      .sort({ [sortOrder]: sortDirection })
+      .lean();
 
     return res.json(foods);
   };
 
   show = async (req, res) => {
-    const filter = { _id: req.params.foodId };
-    const food = await Food.find(filter);
+    const food = await Food.findById(req.params.foodId).lean();
 
     if (!food) {
       return res.status(404).json();

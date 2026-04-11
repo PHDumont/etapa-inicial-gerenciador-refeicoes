@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route } from "react-router";
 import axios from "axios";
-import { FoodCatalogy } from "./pages/FoodCatalogy/FoodCatalogy";
-import { Diary } from "./pages/Diary/Diary";
 import "./App.css";
+
+const FoodCatalogy = lazy(() =>
+  import("./pages/FoodCatalogy/FoodCatalogy").then((m) => ({
+    default: m.FoodCatalogy,
+  })),
+);
+const Diary = lazy(() =>
+  import("./pages/Diary/Diary").then((m) => ({ default: m.Diary })),
+);
 
 axios.defaults.baseURL = "http://localhost:3000";
 
@@ -29,21 +36,14 @@ export interface foodId {
 
 function App() {
   const [foods, setFoods] = useState<Food[]>([]);
-  const [, setMeals] = useState<Meal[]>([]);
 
   const loadFoods = async () => {
     const response = await axios.get<Food[]>("/foods");
     setFoods(response.data);
   };
 
-  const loadMeals = async () => {
-    const response = await axios.get<Meal[]>("/meals");
-    setMeals(response.data);
-  };
-
   useEffect(() => {
     loadFoods();
-    loadMeals();
   }, []);
 
   return (
@@ -52,7 +52,9 @@ function App() {
         path="food-catalogy"
         element={
           <div className="container">
-            <FoodCatalogy foods={foods} loadFoods={loadFoods}></FoodCatalogy>
+            <Suspense fallback={<div className="route-loading">Carregando…</div>}>
+              <FoodCatalogy foods={foods} loadFoods={loadFoods}></FoodCatalogy>
+            </Suspense>
           </div>
         }
       />
@@ -60,7 +62,9 @@ function App() {
         path="diary"
         element={
           <div className="container">
-            <Diary loadMeals={loadMeals} setMeals={setMeals} foods={foods} />
+            <Suspense fallback={<div className="route-loading">Carregando…</div>}>
+              <Diary foods={foods} />
+            </Suspense>
           </div>
         }
       />

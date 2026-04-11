@@ -1,18 +1,20 @@
 import Meal from "../models/Meal.js";
 
 class MealController {
-  calculateTotalCalories = async (meal) => {
-    await meal.items.forEach((item) => {
+  calculateTotalCalories(meal) {
+    meal.totalCalories = 0;
+    for (const item of meal.items) {
       const food = item.foodId;
-
-      if (!food) {
-        return res.status(404).json({ error: "Food not found" });
+      if (
+        !food ||
+        typeof food !== "object" ||
+        typeof food.caloriesPerGram !== "number"
+      ) {
+        continue;
       }
-
-      let caloriesFood = food.caloriesPerGram * item.quantityGrams;
-      meal.totalCalories += caloriesFood;
-    });
-  };
+      meal.totalCalories += food.caloriesPerGram * item.quantityGrams;
+    }
+  }
 
   index = async (req, res) => {
     const { name, date } = req.query;
@@ -37,24 +39,24 @@ class MealController {
       };
     }
 
-    const meals = await Meal.find(filter).populate("items.foodId");
+    const meals = await Meal.find(filter)
+      .populate("items.foodId")
+      .lean();
 
-    meals.forEach((meal) => {
+    for (const meal of meals) {
       this.calculateTotalCalories(meal);
-    });
+    }
 
     return res.json(meals);
   };
 
   show = async (req, res) => {
     const { id } = req.params;
-    const meal = await Meal.findById(id).populate("items.foodId");
+    const meal = await Meal.findById(id).populate("items.foodId").lean();
 
     if (!meal) {
       return res.status(404).json({ error: "Meal not found" });
     }
-
-    let total = 0;
 
     this.calculateTotalCalories(meal);
 
@@ -121,17 +123,49 @@ class MealController {
       editItem.quantityGrams = quantityGrams;
 
       await meal.save();
-
-      this.calculateTotalCalories(meal)
+      await meal.populate("items.foodId");
+      this.calculateTotalCalories(meal);
 
       return res.json(meal);
-
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
         return res.status(400).json({ errors: messages });
       }
       return res.status(500).json({ error: "Error updating" });
+    }
+  };
+
+  deleteItem = async (req, res) => {
+    try {
+      const { id, itemId } = req.params;
+
+      const meal = await Meal.findById(id);
+
+      if (!meal) {
+        return res.status(404).json({ error: "Meal not found" });
+      }
+
+      const before = meal.items.length;
+      meal.items = meal.items.filter(
+        (item) => item._id.toString() !== itemId,
+      );
+
+      if (meal.items.length === before) {
+        return res.status(404).json({ error: "Item not found" });
+      }
+
+      await meal.save();
+      await meal.populate("items.foodId");
+      this.calculateTotalCalories(meal);
+
+      return res.json(meal);
+    } catch (error) {
+      if (error.name === "ValidationError") {
+        const messages = Object.values(error.errors).map((err) => err.message);
+        return res.status(400).json({ errors: messages });
+      }
+      return res.status(500).json({ error: "Error deleting item" });
     }
   };
 

@@ -3,23 +3,30 @@ import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import "./SummaryPanel.css";
-import { type Meal } from "./App"; 
+import { type Meal } from "./App";
 
 dayjs.locale("pt-br");
 
-export function SummaryPanel() {
-  const today = dayjs(); 
+type SummaryPanelProps = {
+  /** Increment when meals for "today" may have changed (e.g. Diary mutations). */
+  mealSummaryRefreshToken?: number;
+};
+
+export function SummaryPanel({
+  mealSummaryRefreshToken,
+}: SummaryPanelProps) {
+  const today = dayjs();
   const [summaryMeals, setSummaryMeals] = useState<Meal[]>([]);
 
   useEffect(() => {
     const fetchTodayMeals = async () => {
       try {
         const formattedDate = today.format("YYYY-MM-DD");
-        
+
         const response = await axios.get<Meal[]>("/meals", {
           params: { date: formattedDate },
         });
-        
+
         setSummaryMeals(response.data);
       } catch (error) {
         console.error("Error searching for meals in the summary.:", error);
@@ -27,10 +34,11 @@ export function SummaryPanel() {
     };
 
     fetchTodayMeals();
-  }, [summaryMeals]);
+  }, [mealSummaryRefreshToken]);
 
   const dateFormat = today.format("dddd, DD [de] MMMM");
-  const dateCapitalized = dateFormat.charAt(0).toUpperCase() + dateFormat.slice(1);
+  const dateCapitalized =
+    dateFormat.charAt(0).toUpperCase() + dateFormat.slice(1);
 
   return (
     <aside className="summary-panel">
@@ -42,7 +50,7 @@ export function SummaryPanel() {
       <div className="summary-card">
         <div className="card-bottom-section">
           <h4>Refeições do Dia</h4>
-          
+
           {summaryMeals.length === 0 ? (
             <p style={{ fontSize: "14px", color: "#666", marginTop: "10px" }}>
               Nenhuma refeição registrada hoje.
@@ -53,7 +61,8 @@ export function SummaryPanel() {
                 <li key={meal._id} className="meal-item">
                   <span className="meal-name">{meal.name}</span>
                   <span className="meal-calories">
-                    {meal.totalCalories ? Math.round(meal.totalCalories) : 0} kcal
+                    {meal.totalCalories ? Math.round(meal.totalCalories) : 0}{" "}
+                    kcal
                   </span>
                 </li>
               ))}

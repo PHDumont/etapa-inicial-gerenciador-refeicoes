@@ -17,6 +17,8 @@ const mealSchema = new mongoose.Schema({
   ],
 });
 
+mealSchema.index({ date: 1 });
+
 const Meal = mongoose.model("Meal", mealSchema);
 
 export default Meal;
