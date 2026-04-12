@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import "./FoodModal.css";
+import "../../styles/modal.css";
 import { parseNewFoodForm } from "../../utils/nutrition";
 
 export interface NewFoodData {

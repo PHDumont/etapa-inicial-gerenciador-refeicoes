@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./FoodModal.css";
+import "../../styles/modal.css";
 import { type Food } from "../../App";
 import { parseNewFoodForm } from "../../utils/nutrition";
 

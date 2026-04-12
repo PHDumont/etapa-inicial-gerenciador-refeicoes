@@ -1,4 +1,5 @@
 import "./Diary.css";
+import "../../styles/modal.css";
 import { SummaryPanel } from "../../SummaryPanel";
 import { Sidebar } from "../../components/SideBar";
 import { MealCard } from "./MealCard";
