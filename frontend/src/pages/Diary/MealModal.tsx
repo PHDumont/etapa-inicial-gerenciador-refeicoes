@@ -81,27 +81,31 @@ function MealModal({
 
   const handleSave = () => {
     const parsed = parseMealPayload(name, foodBlocks);
-    if (!parsed.ok) {
-      if (parsed.reason === "EMPTY_NAME") {
-        alert("Preencha o nome da refeição!");
-      } else if (parsed.reason === "NO_ITEMS") {
-        alert("Adicione pelo menos um alimento preenchido!");
-      } else {
-        alert("Informe quantidades válidas (mínimo 1 g).");
+    switch (parsed.ok) {
+      case true: {
+        const id = meal ? meal._id : null;
+
+        const mealDataToSave = {
+          _id: id,
+          name: name.trim(),
+          date: dateSelect,
+          items: parsed.items,
+        };
+
+        onSave(mealDataToSave, isEdit);
+        break;
       }
-      return;
+      case false: {
+        if (parsed.reason === "EMPTY_NAME") {
+          alert("Preencha o nome da refeição!");
+        } else if (parsed.reason === "NO_ITEMS") {
+          alert("Adicione pelo menos um alimento preenchido!");
+        } else {
+          alert("Informe quantidades válidas (mínimo 1 g).");
+        }
+        break;
+      }
     }
-
-    const id = meal ? meal._id : null;
-
-    const mealDataToSave = {
-      _id: id,
-      name: name.trim(),
-      date: dateSelect,
-      items: parsed.items,
-    };
-
-    onSave(mealDataToSave, isEdit);
   };
 
   const handleClose = () => {
