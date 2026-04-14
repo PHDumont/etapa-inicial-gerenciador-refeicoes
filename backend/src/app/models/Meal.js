@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const mealSchema = new mongoose.Schema({
   name: { type: String, required: true },
   date: { type: Date, default: Date.now },
-  totalCalories: {type: Number, default: 0},
-  isExpanded: {type: Boolean, default: false},
+  totalCalories: { type: Number, default: 0 },
+  isExpanded: { type: Boolean, default: false },
   items: [
     {
       foodId: {
@@ -15,6 +15,7 @@ const mealSchema = new mongoose.Schema({
       quantityGrams: { type: Number, required: true, min: 1 },
     },
   ],
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 mealSchema.index({ date: 1 });

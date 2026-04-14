@@ -1,4 +1,5 @@
 import Meal from "../models/Meal.js";
+import User from "../models/User.js";
 
 class MealController {
   calculateTotalCalories(meal) {
@@ -39,9 +40,7 @@ class MealController {
       };
     }
 
-    const meals = await Meal.find(filter)
-      .populate("items.foodId")
-      .lean();
+    const meals = await Meal.find(filter).populate("items.foodId").lean();
 
     for (const meal of meals) {
       this.calculateTotalCalories(meal);
@@ -65,14 +64,21 @@ class MealController {
 
   create = async (req, res) => {
     try {
-      const meal = await Meal.create(req.body);
+      const auth = getAuth(req);
+      const user = await User.findOne({ userId: auth.userId });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const newMeal = { ...req.body, userId: user._id };
+
+      const meal = await Meal.create(newMeal);
       return res.status(201).json(meal);
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
         return res.status(400).json({ errors: messages });
       }
-
       return res.status(500).json({ error: "Internal error server" });
     }
   };
@@ -147,9 +153,7 @@ class MealController {
       }
 
       const before = meal.items.length;
-      meal.items = meal.items.filter(
-        (item) => item._id.toString() !== itemId,
-      );
+      meal.items = meal.items.filter((item) => item._id.toString() !== itemId);
 
       if (meal.items.length === before) {
         return res.status(404).json({ error: "Item not found" });

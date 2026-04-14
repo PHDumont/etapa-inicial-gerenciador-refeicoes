@@ -1,4 +1,5 @@
 import Food from "../models/Food.js";
+import { getAuth } from "@clerk/express";
 
 class FoodController {
   index = async (req, res) => {
@@ -61,8 +62,6 @@ class FoodController {
       }
 
       const userId = auth.userId;
-
-      console.log(userId);
 
       const { id } = req.params;
 

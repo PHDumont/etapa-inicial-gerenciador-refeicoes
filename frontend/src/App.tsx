@@ -8,6 +8,7 @@ import {
   SignUpButton,
   UserButton,
   useAuth,
+  useUser,
 } from "@clerk/react";
 
 const FoodCatalogy = lazy(() =>
@@ -46,10 +47,30 @@ function App() {
 
   const { getToken } = useAuth();
 
+  const { user, isSignedIn } = useUser();
+
   const loadFoods = async () => {
     const response = await axios.get<Food[]>("/foods");
     setFoods(response.data);
   };
+
+  useEffect(() => {
+    if (isSignedIn && user) {
+      const syncUser = async () => {
+        try {
+          await axios.post("/users/sync", {
+            email: user?.emailAddresses[0]?.emailAddress,
+            name: user?.fullName || "",
+            caloriesGoal: 2000,
+          });
+          console.log("User synced successfully");
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      syncUser();
+    }
+  }, [isSignedIn, user]);
 
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
