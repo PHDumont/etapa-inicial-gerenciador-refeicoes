@@ -2,7 +2,13 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route, Navigate, Link } from "react-router";
 import axios from "axios";
 import "./App.css";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+} from "@clerk/react";
 
 const FoodCatalogy = lazy(() =>
   import("./pages/FoodCatalogy/FoodCatalogy").then((m) => ({
@@ -38,10 +44,33 @@ export interface foodId {
 function App() {
   const [foods, setFoods] = useState<Food[]>([]);
 
+  const { getToken } = useAuth();
+
   const loadFoods = async () => {
     const response = await axios.get<Food[]>("/foods");
     setFoods(response.data);
   };
+
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      async (config) => {
+        const token = await getToken();
+
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      },
+    );
+
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+    };
+  }, [getToken]);
 
   useEffect(() => {
     loadFoods();
@@ -53,10 +82,12 @@ function App() {
         <div className="app-auth-screen" role="main">
           <div className="app-auth-card">
             <p className="app-auth-eyebrow">Meal Tracker</p>
-            <h1 className="app-auth-title">Seu diário alimentar, em um só lugar</h1>
+            <h1 className="app-auth-title">
+              Seu diário alimentar, em um só lugar
+            </h1>
             <p className="app-auth-lead">
-              Registre refeições, consulte calorias e mantenha o catálogo de alimentos
-              organizado com segurança da sua conta.
+              Registre refeições, consulte calorias e mantenha o catálogo de
+              alimentos organizado com segurança da sua conta.
             </p>
             <ul className="app-auth-points" aria-label="Recursos">
               <li>Diário com totais por dia</li>
@@ -65,12 +96,18 @@ function App() {
             </ul>
             <div className="app-auth-actions">
               <SignInButton mode="modal">
-                <button type="button" className="app-auth-btn app-auth-btn--primary">
+                <button
+                  type="button"
+                  className="app-auth-btn app-auth-btn--primary"
+                >
                   Entrar
                 </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button type="button" className="app-auth-btn app-auth-btn--outline">
+                <button
+                  type="button"
+                  className="app-auth-btn app-auth-btn--outline"
+                >
                   Criar conta
                 </button>
               </SignUpButton>
@@ -86,12 +123,8 @@ function App() {
         <div className="app-shell">
           <header className="app-topbar">
             <Link to="/diary" className="app-topbar-brand">
-              <span className="app-topbar-logo" aria-hidden>
-                ◎
-              </span>
               <span className="app-topbar-text">
                 <span className="app-topbar-name">Meal Tracker</span>
-                <span className="app-topbar-tagline">Diário e catálogo</span>
               </span>
             </Link>
             <div className="app-topbar-actions">
@@ -112,7 +145,9 @@ function App() {
                 element={
                   <div className="container">
                     <Suspense
-                      fallback={<div className="route-loading">Carregando…</div>}
+                      fallback={
+                        <div className="route-loading">Carregando…</div>
+                      }
                     >
                       <FoodCatalogy foods={foods} loadFoods={loadFoods} />
                     </Suspense>
@@ -124,7 +159,9 @@ function App() {
                 element={
                   <div className="container">
                     <Suspense
-                      fallback={<div className="route-loading">Carregando…</div>}
+                      fallback={
+                        <div className="route-loading">Carregando…</div>
+                      }
                     >
                       <Diary foods={foods} />
                     </Suspense>

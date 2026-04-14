@@ -15,9 +15,12 @@ function RootLayout() {
   const navigate = useNavigate();
 
   return (
-    <ClerkProvider routerPush={(to) => navigate(to)}
-    routerReplace={(to) => navigate(to, { replace: true })}
-    publishableKey={PUBLIC_KEY} afterSignOutUrl="/">
+    <ClerkProvider
+      routerPush={(to) => navigate(to)}
+      routerReplace={(to) => navigate(to, { replace: true })}
+      publishableKey={PUBLIC_KEY}
+      afterSignOutUrl="/"
+    >
       <Routes>
         <Route path="/*" element={<App />} />
       </Routes>

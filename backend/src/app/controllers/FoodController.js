@@ -15,7 +15,7 @@ class FoodController {
     }
 
     if (category) {
-      filter.category = { $regex: category, $options: "i"  };
+      filter.category = { $regex: category, $options: "i" };
     }
 
     const sortOrder = order || "name";
@@ -54,6 +54,16 @@ class FoodController {
 
   update = async (req, res) => {
     try {
+      const auth = getAuth(req);
+
+      if (!auth.userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const userId = auth.userId;
+
+      console.log(userId);
+
       const { id } = req.params;
 
       const food = await Food.findByIdAndUpdate(id, req.body, {
@@ -76,16 +86,16 @@ class FoodController {
   };
 
   delete = async (req, res) => {
-    try{
-      const {id} = req.params
+    try {
+      const { id } = req.params;
 
-    const food = await Food.findByIdAndDelete(id)
+      const food = await Food.findByIdAndDelete(id);
 
-    if (!food){
-      return res.status(404).json({ error: "Food not found" });
-    }
+      if (!food) {
+        return res.status(404).json({ error: "Food not found" });
+      }
 
-    return res.json()
+      return res.json();
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
@@ -93,7 +103,7 @@ class FoodController {
       }
       return res.status(500).json({ error: "Error deleting" });
     }
-  }
+  };
 }
 
 export default new FoodController();
