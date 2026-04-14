@@ -1,6 +1,6 @@
 import "./Diary.css";
 import "../../styles/modal.css";
-import { SummaryPanel } from "../../SummaryPanel";
+import { SummaryPanel } from "../SummaryPanel";
 import { Sidebar } from "../../components/SideBar";
 import { MealCard } from "./MealCard";
 import { type Food, type Meal } from "../../App";

@@ -4,7 +4,7 @@ import FoodModal, { type NewFoodData } from "./FoodModal";
 import { FoodCard } from "./FoodCard";
 import axios from "axios";
 import { Sidebar } from "../../components/SideBar";
-import { SummaryPanel } from "../../SummaryPanel";
+import { SummaryPanel } from "../SummaryPanel";
 import EditFoodModal from "./EditFoodModal";
 import {type Food } from "../../App";
 

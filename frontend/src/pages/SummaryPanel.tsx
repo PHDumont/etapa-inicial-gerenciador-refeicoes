@@ -3,7 +3,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import "./SummaryPanel.css";
-import { type Meal } from "./App";
+import { type Meal } from "../App";
 
 dayjs.locale("pt-br");
 
