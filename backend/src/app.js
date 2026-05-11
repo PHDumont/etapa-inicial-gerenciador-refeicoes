@@ -3,7 +3,8 @@ import routes from "./routes.js";
 import cors from "cors";
 import compression from "compression";
 import dotenv from "dotenv";
-import { clerkMiddleware, getAuth } from "@clerk/express";
+import { clerkMiddleware } from "@clerk/express";
+import { clerkWebhookHandler } from "./app/controllers/WebhookController.js";
 
 dotenv.config();
 
@@ -15,23 +16,19 @@ class App {
   }
 
   middlewares() {
+    this.server.post(
+      "/api/webhooks/clerk",
+      express.raw({ type: "application/json" }),
+      clerkWebhookHandler,
+    );
     this.server.use(cors());
     this.server.use(compression());
     this.server.use(express.json());
     this.server.use(clerkMiddleware());
-    this.server.use(this.checkAuth);
   }
 
   routes() {
     this.server.use(routes);
-  }
-
-  checkAuth(req, res, next) {
-    const auth = getAuth(req);
-    if (!auth.userId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    return next();
   }
 }
 

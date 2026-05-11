@@ -1,7 +1,22 @@
 import Meal from "../models/Meal.js";
-import User from "../models/User.js";
+import Food from "../models/Food.js";
+import BasicController from "./BasicController.js";
 
-class MealController {
+class MealController extends BasicController {
+  validateMealItemsOwnership = async (items, userObjectId) => {
+    if (!Array.isArray(items) || items.length === 0) {
+      return true;
+    }
+
+    const foodIds = items.map((item) => item.foodId);
+    const ownedFoodsCount = await Food.countDocuments({
+      _id: { $in: foodIds },
+      userId: userObjectId,
+    });
+
+    return ownedFoodsCount === foodIds.length;
+  };
+
   calculateTotalCalories(meal) {
     meal.totalCalories = 0;
     for (const item of meal.items) {
@@ -18,56 +33,89 @@ class MealController {
   }
 
   index = async (req, res) => {
-    const { name, date } = req.query;
+    try {
+      const user = await this.getCurrentUser(req, res);
 
-    let filter = {};
+      if (!user) {
+        return;
+      }
 
-    if (name) {
-      filter.name = { $regex: name, $options: "i" };
+      const { name, date } = req.query;
+
+      let filter = { userId: user._id };
+
+      if (name) {
+        filter.name = { $regex: name, $options: "i" };
+      }
+
+      if (date) {
+        const dateSearch = new Date(date);
+
+        const dateStart = new Date(dateSearch);
+        dateStart.setUTCHours(0, 0, 0, 0);
+        const dateEnd = new Date(dateSearch);
+        dateEnd.setUTCHours(23, 59, 59, 999);
+
+        filter.date = {
+          $gte: dateStart,
+          $lte: dateEnd,
+        };
+      }
+
+      const meals = await Meal.find(filter)
+        .populate({ path: "items.foodId", match: { userId: user._id } })
+        .lean();
+
+      for (const meal of meals) {
+        this.calculateTotalCalories(meal);
+      }
+
+      return res.json(meals);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal error server" });
     }
-
-    if (date) {
-      const dateSearch = new Date(date);
-
-      const dateStart = new Date(dateSearch);
-      dateStart.setUTCHours(0, 0, 0, 0);
-      const dateEnd = new Date(dateSearch);
-      dateEnd.setUTCHours(23, 59, 59, 999);
-
-      filter.date = {
-        $gte: dateStart,
-        $lte: dateEnd,
-      };
-    }
-
-    const meals = await Meal.find(filter).populate("items.foodId").lean();
-
-    for (const meal of meals) {
-      this.calculateTotalCalories(meal);
-    }
-
-    return res.json(meals);
   };
 
   show = async (req, res) => {
-    const { id } = req.params;
-    const meal = await Meal.findById(id).populate("items.foodId").lean();
+    try {
+      const user = await this.getCurrentUser(req, res);
 
-    if (!meal) {
-      return res.status(404).json({ error: "Meal not found" });
+      if (!user) {
+        return;
+      }
+
+      const { id } = req.params;
+      const meal = await Meal.findOne({ _id: id, userId: user._id })
+        .populate({ path: "items.foodId", match: { userId: user._id } })
+        .lean();
+
+      if (!meal) {
+        return res.status(404).json({ error: "Meal not found" });
+      }
+
+      this.calculateTotalCalories(meal);
+
+      return res.json(meal);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal error server" });
     }
-
-    this.calculateTotalCalories(meal);
-
-    return res.json(meal);
   };
 
   create = async (req, res) => {
     try {
-      const auth = getAuth(req);
-      const user = await User.findOne({ userId: auth.userId });
+      const user = await this.getCurrentUser(req, res);
+
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return;
+      }
+
+      const hasOnlyOwnedFoods = await this.validateMealItemsOwnership(
+        req.body.items,
+        user._id,
+      );
+
+      if (!hasOnlyOwnedFoods) {
+        return res.status(404).json({ error: "Food not found" });
       }
 
       const newMeal = { ...req.body, userId: user._id };
@@ -85,12 +133,35 @@ class MealController {
 
   update = async (req, res) => {
     try {
-      const { id } = req.params;
+      const user = await this.getCurrentUser(req, res);
 
-      const meal = await Meal.findByIdAndUpdate(id, req.body, {
-        returnDocument: "after",
-        runValidators: true,
-      });
+      if (!user) {
+        return;
+      }
+
+      const { id } = req.params;
+      const updatePayload = { ...req.body };
+      delete updatePayload.userId;
+
+      if (updatePayload.items) {
+        const hasOnlyOwnedFoods = await this.validateMealItemsOwnership(
+          updatePayload.items,
+          user._id,
+        );
+
+        if (!hasOnlyOwnedFoods) {
+          return res.status(404).json({ error: "Food not found" });
+        }
+      }
+
+      const meal = await Meal.findOneAndUpdate(
+        { _id: id, userId: user._id },
+        updatePayload,
+        {
+          returnDocument: "after",
+          runValidators: true,
+        },
+      );
 
       if (!meal) {
         return res.status(404).json({ error: "Meal not found" });
@@ -108,9 +179,15 @@ class MealController {
 
   updateFood = async (req, res) => {
     try {
+      const user = await this.getCurrentUser(req, res);
+
+      if (!user) {
+        return;
+      }
+
       const { id, itemId } = req.params;
 
-      const meal = await Meal.findById(id);
+      const meal = await Meal.findOne({ _id: id, userId: user._id });
 
       if (!meal) {
         return res.status(404).json({ error: "Meal not found" });
@@ -129,7 +206,10 @@ class MealController {
       editItem.quantityGrams = quantityGrams;
 
       await meal.save();
-      await meal.populate("items.foodId");
+      await meal.populate({
+        path: "items.foodId",
+        match: { userId: user._id },
+      });
       this.calculateTotalCalories(meal);
 
       return res.json(meal);
@@ -144,9 +224,15 @@ class MealController {
 
   deleteItem = async (req, res) => {
     try {
+      const user = await this.getCurrentUser(req, res);
+
+      if (!user) {
+        return;
+      }
+
       const { id, itemId } = req.params;
 
-      const meal = await Meal.findById(id);
+      const meal = await Meal.findOne({ _id: id, userId: user._id });
 
       if (!meal) {
         return res.status(404).json({ error: "Meal not found" });
@@ -160,7 +246,10 @@ class MealController {
       }
 
       await meal.save();
-      await meal.populate("items.foodId");
+      await meal.populate({
+        path: "items.foodId",
+        match: { userId: user._id },
+      });
       this.calculateTotalCalories(meal);
 
       return res.json(meal);
@@ -175,9 +264,15 @@ class MealController {
 
   delete = async (req, res) => {
     try {
+      const user = await this.getCurrentUser(req, res);
+
+      if (!user) {
+        return;
+      }
+
       const { id } = req.params;
 
-      const meal = await Meal.findByIdAndDelete(id);
+      const meal = await Meal.findOneAndDelete({ _id: id, userId: user._id });
 
       if (!meal) {
         return res.status(404).json({ error: "Meal not found" });

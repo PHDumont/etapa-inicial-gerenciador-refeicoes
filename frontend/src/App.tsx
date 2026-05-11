@@ -8,7 +8,6 @@ import {
   SignUpButton,
   UserButton,
   useAuth,
-  useUser,
 } from "@clerk/react";
 
 const FoodCatalogy = lazy(() =>
@@ -18,6 +17,9 @@ const FoodCatalogy = lazy(() =>
 );
 const Diary = lazy(() =>
   import("./pages/Diary/Diary").then((m) => ({ default: m.Diary })),
+);
+const Profile = lazy(() =>
+  import("./pages/Profile/Profile").then((m) => ({ default: m.Profile })),
 );
 
 axios.defaults.baseURL = "http://localhost:3000";
@@ -47,30 +49,10 @@ function App() {
 
   const { getToken } = useAuth();
 
-  const { user, isSignedIn } = useUser();
-
   const loadFoods = async () => {
     const response = await axios.get<Food[]>("/foods");
     setFoods(response.data);
   };
-
-  useEffect(() => {
-    if (isSignedIn && user) {
-      const syncUser = async () => {
-        try {
-          await axios.post("/users/sync", {
-            email: user?.emailAddresses[0]?.emailAddress,
-            name: user?.fullName || "",
-            caloriesGoal: 2000,
-          });
-          console.log("User synced successfully");
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      syncUser();
-    }
-  }, [isSignedIn, user]);
 
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
@@ -149,6 +131,9 @@ function App() {
               </span>
             </Link>
             <div className="app-topbar-actions">
+              <Link to="/profile" className="app-topbar-link">
+                Perfil
+              </Link>
               <UserButton
                 appearance={{
                   elements: {
@@ -185,6 +170,20 @@ function App() {
                       }
                     >
                       <Diary foods={foods} />
+                    </Suspense>
+                  </div>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <div className="container">
+                    <Suspense
+                      fallback={
+                        <div className="route-loading">Carregando...</div>
+                      }
+                    >
+                      <Profile />
                     </Suspense>
                   </div>
                 }

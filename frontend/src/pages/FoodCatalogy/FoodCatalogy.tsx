@@ -6,7 +6,7 @@ import axios from "axios";
 import { Sidebar } from "../../components/SideBar";
 import { SummaryPanel } from "../SummaryPanel";
 import EditFoodModal from "./EditFoodModal";
-import {type Food } from "../../App";
+import { type Food } from "../../App";
 
 interface FoodCatalogyProps {
   foods: Food[];
@@ -31,9 +31,9 @@ export function FoodCatalogy({ foods, loadFoods }: FoodCatalogyProps) {
   };
 
   const deleteFood = async (id: string) => {
-    await axios.delete(`/foods/${id}`)
-    await loadFoods()
-  }
+    await axios.delete(`/foods/${id}`);
+    await loadFoods();
+  };
 
   return (
     <>
@@ -49,7 +49,13 @@ export function FoodCatalogy({ foods, loadFoods }: FoodCatalogyProps) {
 
         <div className="food-grid">
           {foods.map((food) => (
-            <FoodCard key={food._id} food={food} setEditFood={setEditFood} setIsEditFoodModalOpen={setIsEditFoodModalOpen} deleteFood={deleteFood} />
+            <FoodCard
+              key={food._id}
+              food={food}
+              setEditFood={setEditFood}
+              setIsEditFoodModalOpen={setIsEditFoodModalOpen}
+              deleteFood={deleteFood}
+            />
           ))}
         </div>
         <FoodModal

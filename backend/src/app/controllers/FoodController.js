@@ -1,47 +1,78 @@
 import Food from "../models/Food.js";
-import { getAuth } from "@clerk/express";
+import BasicController from "./BasicController.js";
 
-class FoodController {
+class FoodController extends BasicController {
   index = async (req, res) => {
-    const { name, caloriesPerGram, category, sort, order } = req.query;
+    try {
+      const user = await this.getCurrentUser(req, res);
 
-    let filter = {};
+      if (!user) {
+        return;
+      }
 
-    if (name) {
-      filter.name = { $regex: name, $options: "i" };
+      const { name, caloriesPerGram, category, sort, order } = req.query;
+
+      let filter = { userId: user._id };
+
+      if (name) {
+        filter.name = { $regex: name, $options: "i" };
+      }
+
+      if (caloriesPerGram) {
+        filter.caloriesPerGram = { $lte: Number(caloriesPerGram) };
+      }
+
+      if (category) {
+        filter.category = { $regex: category, $options: "i" };
+      }
+
+      const sortOrder = order || "name";
+      const sortDirection = sort === "desc" ? -1 : 1;
+
+      const foods = await Food.find(filter)
+        .sort({ [sortOrder]: sortDirection })
+        .lean();
+
+      return res.json(foods);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal error server" });
     }
-
-    if (caloriesPerGram) {
-      filter.caloriesPerGram = { $lte: Number(caloriesPerGram) };
-    }
-
-    if (category) {
-      filter.category = { $regex: category, $options: "i" };
-    }
-
-    const sortOrder = order || "name";
-    const sortDirection = sort === "desc" ? -1 : 1;
-
-    const foods = await Food.find(filter)
-      .sort({ [sortOrder]: sortDirection })
-      .lean();
-
-    return res.json(foods);
   };
 
   show = async (req, res) => {
-    const food = await Food.findById(req.params.foodId).lean();
+    try {
+      const user = await this.getCurrentUser(req, res);
 
-    if (!food) {
-      return res.status(404).json();
+      if (!user) {
+        return;
+      }
+
+      const food = await Food.findOne({
+        _id: req.params.foodId,
+        userId: user._id,
+      }).lean();
+
+      if (!food) {
+        return res.status(404).json();
+      }
+
+      return res.json(food);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal error server" });
     }
-
-    return res.json(food);
   };
 
   create = async (req, res) => {
     try {
-      const food = await Food.create(req.body);
+      const user = await this.getCurrentUser(req, res);
+
+      if (!user) {
+        return;
+      }
+
+      const foodPayload = { ...req.body, userId: user._id };
+      const food = await Food.create(foodPayload);
+
       return res.status(201).json(food);
     } catch (error) {
       if (error.name === "ValidationError") {
@@ -55,20 +86,24 @@ class FoodController {
 
   update = async (req, res) => {
     try {
-      const auth = getAuth(req);
+      const user = await this.getCurrentUser(req, res);
 
-      if (!auth.userId) {
-        return res.status(401).json({ error: "Unauthorized" });
+      if (!user) {
+        return;
       }
 
-      const userId = auth.userId;
-
       const { id } = req.params;
+      const updatePayload = { ...req.body };
+      delete updatePayload.userId;
 
-      const food = await Food.findByIdAndUpdate(id, req.body, {
-        returnDocument: "after",
-        runValidators: true,
-      });
+      const food = await Food.findOneAndUpdate(
+        { _id: id, userId: user._id },
+        updatePayload,
+        {
+          returnDocument: "after",
+          runValidators: true,
+        },
+      );
 
       if (!food) {
         return res.status(404).json({ error: "Food not found" });
@@ -86,9 +121,15 @@ class FoodController {
 
   delete = async (req, res) => {
     try {
+      const user = await this.getCurrentUser(req, res);
+
+      if (!user) {
+        return;
+      }
+
       const { id } = req.params;
 
-      const food = await Food.findByIdAndDelete(id);
+      const food = await Food.findOneAndDelete({ _id: id, userId: user._id });
 
       if (!food) {
         return res.status(404).json({ error: "Food not found" });

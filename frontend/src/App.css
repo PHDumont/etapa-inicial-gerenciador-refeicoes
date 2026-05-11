@@ -8,7 +8,7 @@
 
   --text-dark: #2C3E50;
   --text-muted: #7F8C8D;
-  
+
   /* Bordas e Sombras */
   --border-radius: 12px;
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -98,6 +98,24 @@ body {
 .app-topbar-actions {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
+}
+
+.app-topbar-link {
+  text-decoration: none;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 106, 91, 0.16);
+  background: rgba(15, 106, 91, 0.04);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.app-topbar-link:hover {
+  background: rgba(15, 106, 91, 0.1);
+  border-color: rgba(15, 106, 91, 0.28);
 }
 
 .app-user-avatar {
@@ -114,7 +132,7 @@ body {
   flex-direction: column;
 }
 
-.app-main > .container {
+.app-main>.container {
   flex: 1;
   min-height: 0;
 }
@@ -253,4 +271,3 @@ body {
   padding: 1rem;
   color: var(--text-muted);
 }
-

@@ -12,9 +12,7 @@ type SummaryPanelProps = {
   mealSummaryRefreshToken?: number;
 };
 
-export function SummaryPanel({
-  mealSummaryRefreshToken,
-}: SummaryPanelProps) {
+export function SummaryPanel({ mealSummaryRefreshToken }: SummaryPanelProps) {
   const today = dayjs();
   const [summaryMeals, setSummaryMeals] = useState<Meal[]>([]);
 

@@ -1,22 +1,35 @@
-import "./Sidebar.css"
+import "./Sidebar.css";
 import { NavLink } from "react-router";
 
 export function Sidebar() {
   return (
     <aside className="sidebar">
       <ul className="nav-menu">
-        <NavLink 
+        <NavLink
           to="/diary"
-          className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} 
+          className={({ isActive }) =>
+            isActive ? "nav-item active" : "nav-item"
+          }
         >
           Diário
         </NavLink>
-        
-        <NavLink 
+
+        <NavLink
           to="/food-catalogy"
-          className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} 
+          className={({ isActive }) =>
+            isActive ? "nav-item active" : "nav-item"
+          }
         >
           Catálogo de Alimentos
+        </NavLink>
+
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            isActive ? "nav-item active" : "nav-item"
+          }
+        >
+          Perfil
         </NavLink>
       </ul>
     </aside>

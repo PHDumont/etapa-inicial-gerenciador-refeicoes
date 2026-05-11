@@ -84,10 +84,7 @@ export function Diary({ foods }: DiaryProps) {
   }, []);
 
   const handleSaveEditFood = async (quantity: Body) => {
-    await axios.put(
-      `/meals/${mainMeal?._id}/item/${mainMealFoodId}`,
-      quantity,
-    );
+    await axios.put(`/meals/${mainMeal?._id}/item/${mainMealFoodId}`, quantity);
     setIsEditFoodModalOpen(false);
     await selectDayMeals();
     bumpSummary();
