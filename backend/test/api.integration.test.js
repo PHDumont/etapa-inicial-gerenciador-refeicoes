@@ -3,9 +3,12 @@ import request from "supertest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import Food from "../src/app/models/Food.js";
 import Meal from "../src/app/models/Meal.js";
+import User from "../src/app/models/User.js";
+import { TEST_CLERK_USER_ID } from "./clerk-express-stub.js";
 
 let app;
 let mongoServer;
+let integrationUser;
 
 beforeAll(async () => {
   const { MongoMemoryServer } = await import("mongodb-memory-server");
@@ -25,6 +28,12 @@ afterAll(async () => {
 beforeEach(async () => {
   await Food.deleteMany({});
   await Meal.deleteMany({});
+  await User.deleteMany({});
+  integrationUser = await User.create({
+    userId: TEST_CLERK_USER_ID,
+    email: "integration@test.local",
+    name: "Integration User",
+  });
 });
 
 describe("API — alimentos (cadastro, listagem, busca, remoção, validação)", () => {
@@ -77,14 +86,19 @@ describe("API — alimentos (cadastro, listagem, busca, remoção, validação)"
       name: "Banana Prata",
       category: "Fruits",
       caloriesPerGram: 0.89,
+      userId: integrationUser._id,
     });
     await Food.create({
       name: "Feijão Preto",
       category: "Grains",
       caloriesPerGram: 1.2,
+      userId: integrationUser._id,
     });
 
-    const res = await request(app).get("/foods").query({ name: "banana" }).expect(200);
+    const res = await request(app)
+      .get("/foods")
+      .query({ name: "banana" })
+      .expect(200);
 
     expect(res.body).toHaveLength(1);
     expect(res.body[0].name).toBe("Banana Prata");
@@ -95,6 +109,7 @@ describe("API — alimentos (cadastro, listagem, busca, remoção, validação)"
       name: "Temp",
       category: "Beverages",
       caloriesPerGram: 0.01,
+      userId: integrationUser._id,
     });
 
     await request(app).delete(`/foods/${doc._id.toString()}`).expect(200);
@@ -129,7 +144,9 @@ describe("API — refeições e cálculo de calorias", () => {
       })
       .expect(201);
 
-    const show = await request(app).get(`/meals/${mealRes.body._id}`).expect(200);
+    const show = await request(app)
+      .get(`/meals/${mealRes.body._id}`)
+      .expect(200);
 
     expect(show.body.totalCalories).toBeCloseTo(1.43 * 50, 5);
   });
@@ -182,7 +199,10 @@ describe("API — refeições e cálculo de calorias", () => {
       })
       .expect(201);
 
-    const list = await request(app).get("/meals").query({ date: "2026-01-15" }).expect(200);
+    const list = await request(app)
+      .get("/meals")
+      .query({ date: "2026-01-15" })
+      .expect(200);
 
     expect(list.body.length).toBe(1);
     expect(list.body[0].name).toBe("Jantar");
