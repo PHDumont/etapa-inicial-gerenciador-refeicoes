@@ -11,7 +11,7 @@ export function Sidebar() {
             isActive ? "nav-item active" : "nav-item"
           }
         >
-          Diário
+          Diary
         </NavLink>
 
         <NavLink
@@ -20,7 +20,7 @@ export function Sidebar() {
             isActive ? "nav-item active" : "nav-item"
           }
         >
-          Catálogo de Alimentos
+          Food Catalog
         </NavLink>
 
         <NavLink
@@ -29,7 +29,7 @@ export function Sidebar() {
             isActive ? "nav-item active" : "nav-item"
           }
         >
-          Perfil
+          Profile
         </NavLink>
       </ul>
     </aside>

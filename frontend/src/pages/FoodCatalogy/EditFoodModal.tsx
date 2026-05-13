@@ -28,11 +28,11 @@ function EditFoodModal({ isOpen, onClose, onSave, food }: EditFoodModalProps) {
 
   const handleSave = () => {
     const parsed = parseNewFoodForm(name, category, calories);
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       if (parsed.reason === "EMPTY_FIELDS") {
-        alert("Preencha todos os campos!");
+        alert("Fill all fields!");
       } else {
-        alert("Calorias inválidas (use um valor ≥ 0).");
+        alert("Invalid calories (use a value ≥ 0).");
       }
       return;
     }
@@ -46,10 +46,10 @@ function EditFoodModal({ isOpen, onClose, onSave, food }: EditFoodModalProps) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Editar </h3>
+        <h3>Edit Food</h3>
 
         <div className="form-group">
-          <label>Nome do Alimento</label>
+          <label>Food Name</label>
           <input
             type="text"
             value={name}
@@ -58,25 +58,25 @@ function EditFoodModal({ isOpen, onClose, onSave, food }: EditFoodModalProps) {
         </div>
 
         <div className="form-group">
-          <label>Categoria</label>
+          <label>Category</label>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
-            <option value="">Selecione...</option>
-            <option value="Proteins">Proteínas</option>
-            <option value="Carbohydrates">Carboidratos</option>
-            <option value="Vegetables">Vegetais</option>
-            <option value="Fruits">Frutas</option>
-            <option value="Dairy">Laticínios</option>
-            <option value="Beverages">Bebidas</option>
-            <option value="Sweets">Doces</option>
-            <option value="Grains">Grãos</option>
+            <option value="">Select...</option>
+            <option value="Proteins">Proteins</option>
+            <option value="Carbohydrates">Carbohydrates</option>
+            <option value="Vegetables">Vegetables</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Dairy">Dairy</option>
+            <option value="Beverages">Beverages</option>
+            <option value="Sweets">Sweets</option>
+            <option value="Grains">Grains</option>
           </select>
         </div>
 
         <div className="form-group">
-          <label>Calorias por Grama (kcal)</label>
+          <label>Calories per Gram (kcal)</label>
           <input
             type="number"
             step="0.01"
@@ -89,10 +89,10 @@ function EditFoodModal({ isOpen, onClose, onSave, food }: EditFoodModalProps) {
 
         <div className="modal-actions">
           <button className="btn-cancel" onClick={onClose}>
-            Cancelar
+            Cancel
           </button>
           <button className="btn-save" onClick={handleSave}>
-            Salvar
+            Save
           </button>
         </div>
       </div>

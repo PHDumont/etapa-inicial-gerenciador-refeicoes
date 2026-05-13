@@ -97,11 +97,11 @@ function MealModal({
       }
       case false: {
         if (parsed.reason === "EMPTY_NAME") {
-          alert("Preencha o nome da refeição!");
+          alert("Fill the meal name!");
         } else if (parsed.reason === "NO_ITEMS") {
-          alert("Adicione pelo menos um alimento preenchido!");
+          alert("Add at least one filled food!");
         } else {
-          alert("Informe quantidades válidas (mínimo 1 g).");
+          alert("Inform quantities (minimum 1 g).");
         }
         break;
       }
@@ -115,20 +115,20 @@ function MealModal({
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>{isEdit ? "Editar" : "Criar"} Refeição</h3>
+        <h3>{isEdit ? "Edit" : "Create"} Meal</h3>
 
         <div className="form-group">
-          <label>Nome da Refeição</label>
+          <label>Meal Name</label>
           <input
             type="text"
-            placeholder="Ex: Lanche"
+            placeholder="Ex: Lunch"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div className="form-group">
-          <label>Data</label>
+          <label>Date</label>
           <input
             type="date"
             value={dateSelect}
@@ -138,7 +138,7 @@ function MealModal({
 
         <div className="modal-actions modal-actions-add">
           <button className="btn-save" onClick={handleAddBlock}>
-            Adicionar
+            Add
           </button>
         </div>
 
@@ -158,10 +158,10 @@ function MealModal({
 
         <div className="modal-actions" style={{ marginTop: "20px" }}>
           <button className="btn-cancel" onClick={handleClose}>
-            Cancelar
+            Cancel
           </button>
           <button className="btn-save" onClick={handleSave}>
-            Salvar Refeição
+            Save Meal
           </button>
         </div>
       </div>

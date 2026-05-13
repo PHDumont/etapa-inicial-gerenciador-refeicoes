@@ -28,7 +28,7 @@ export const FoodCard = memo(function FoodCard({
   }
 
   function handleDelete() {
-    if (window.confirm("Tem certeza que deseja excluir?")) {
+    if (window.confirm("Are you sure you want to delete?")) {
       setMains({
         meal,
         foodId: item._id,

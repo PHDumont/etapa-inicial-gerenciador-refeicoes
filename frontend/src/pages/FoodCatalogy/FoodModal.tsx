@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import "../../styles/modal.css";
 import { parseNewFoodForm } from "../../utils/nutrition";
 
@@ -15,74 +15,83 @@ interface FoodModalProps {
 }
 
 function FoodModal({ isOpen, onClose, onSave }: FoodModalProps) {
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
-  const [calories, setCalories] = useState<number | ''>('');
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [calories, setCalories] = useState<number | "">("");
 
   if (!isOpen) return null;
 
   const handleSave = () => {
     const parsed = parseNewFoodForm(name, category, calories);
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       if (parsed.reason === "EMPTY_FIELDS") {
-        alert("Preencha todos os campos!");
+        alert("Fill all fields!");
       } else {
-        alert("Calorias inválidas (use um valor ≥ 0).");
+        alert("Invalid calories (use a value ≥ 0).");
       }
       return;
     }
 
     onSave(parsed.data);
 
-    setName('');
-    setCategory('');
-    setCalories('');
+    setName("");
+    setCategory("");
+    setCalories("");
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Cadastrar Novo Alimento</h3>
+        <h3>Register New Food</h3>
 
         <div className="form-group">
-          <label>Nome do Alimento</label>
-          <input 
-            type="text" 
-            placeholder="Ex: Maçã" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
+          <label>Food Name</label>
+          <input
+            type="text"
+            placeholder="Ex: Apple"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div className="form-group">
-          <label>Categoria</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">Selecione...</option>
-            <option value="Proteins">Proteínas</option>
-            <option value="Carbohydrates">Carboidratos</option>
-            <option value="Vegetables">Vegetais</option>
-            <option value="Fruits">Frutas</option>
-            <option value="Dairy">Laticínios</option>
-            <option value="Beverages">Bebidas</option>
-            <option value="Sweets">Doces</option>
-            <option value="Grains">Grãos</option>
+          <label>Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">Select...</option>
+            <option value="Proteins">Proteins</option>
+            <option value="Carbohydrates">Carbohydrates</option>
+            <option value="Vegetables">Vegetables</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Dairy">Dairy</option>
+            <option value="Beverages">Beverages</option>
+            <option value="Sweets">Sweets</option>
+            <option value="Grains">Grains</option>
           </select>
         </div>
 
         <div className="form-group">
-          <label>Calorias por Grama (kcal)</label>
-          <input 
-            type="number" 
+          <label>Calories per Gram (kcal)</label>
+          <input
+            type="number"
             step="0.01"
-            placeholder="Ex: 0.52" 
-            value={calories} 
-            onChange={(e) => setCalories(e.target.value === '' ? '' : Number(e.target.value))} 
+            placeholder="Ex: 0.52"
+            value={calories}
+            onChange={(e) =>
+              setCalories(e.target.value === "" ? "" : Number(e.target.value))
+            }
           />
         </div>
 
         <div className="modal-actions">
-          <button className="btn-cancel" onClick={onClose}>Cancelar</button>
-          <button className="btn-save" onClick={handleSave}>Salvar</button>
+          <button className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="btn-save" onClick={handleSave}>
+            Save
+          </button>
         </div>
       </div>
     </div>

@@ -85,17 +85,15 @@ function App() {
         <div className="app-auth-screen" role="main">
           <div className="app-auth-card">
             <p className="app-auth-eyebrow">Meal Tracker</p>
-            <h1 className="app-auth-title">
-              Seu diário alimentar, em um só lugar
-            </h1>
+            <h1 className="app-auth-title">Your food diary, in one place</h1>
             <p className="app-auth-lead">
-              Registre refeições, consulte calorias e mantenha o catálogo de
-              alimentos organizado com segurança da sua conta.
+              Register meals, consult calories and keep the food catalog
+              organized with the security of your account.
             </p>
             <ul className="app-auth-points" aria-label="Recursos">
-              <li>Diário com totais por dia</li>
-              <li>Catálogo personalizável</li>
-              <li>Resumo nutricional rápido</li>
+              <li>Food diary with totals per day</li>
+              <li>Customizable food catalog</li>
+              <li>Quick nutritional summary</li>
             </ul>
             <div className="app-auth-actions">
               <SignInButton mode="modal">
@@ -103,7 +101,7 @@ function App() {
                   type="button"
                   className="app-auth-btn app-auth-btn--primary"
                 >
-                  Entrar
+                  Sign In
                 </button>
               </SignInButton>
               <SignUpButton mode="modal">
@@ -111,12 +109,12 @@ function App() {
                   type="button"
                   className="app-auth-btn app-auth-btn--outline"
                 >
-                  Criar conta
+                  Sign Up
                 </button>
               </SignUpButton>
             </div>
             <p className="app-auth-footnote">
-              Ao continuar, você usa os fluxos seguros de autenticação do Clerk.
+              By continuing, you use the secure authentication flows of Clerk.
             </p>
           </div>
         </div>
@@ -132,7 +130,7 @@ function App() {
             </Link>
             <div className="app-topbar-actions">
               <Link to="/profile" className="app-topbar-link">
-                Perfil
+                Profile
               </Link>
               <UserButton
                 appearance={{
@@ -151,9 +149,7 @@ function App() {
                 element={
                   <div className="container">
                     <Suspense
-                      fallback={
-                        <div className="route-loading">Carregando…</div>
-                      }
+                      fallback={<div className="route-loading">Loading...</div>}
                     >
                       <FoodCatalogy foods={foods} loadFoods={loadFoods} />
                     </Suspense>
@@ -165,9 +161,7 @@ function App() {
                 element={
                   <div className="container">
                     <Suspense
-                      fallback={
-                        <div className="route-loading">Carregando…</div>
-                      }
+                      fallback={<div className="route-loading">Loading...</div>}
                     >
                       <Diary foods={foods} />
                     </Suspense>
@@ -179,9 +173,7 @@ function App() {
                 element={
                   <div className="container">
                     <Suspense
-                      fallback={
-                        <div className="route-loading">Carregando...</div>
-                      }
+                      fallback={<div className="route-loading">Loading...</div>}
                     >
                       <Profile />
                     </Suspense>

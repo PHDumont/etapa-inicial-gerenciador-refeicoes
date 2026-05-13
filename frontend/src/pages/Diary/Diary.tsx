@@ -10,9 +10,9 @@ import { EditFoodModal } from "./EditFoodModal";
 import axios from "axios";
 import MealModal from "./MealModal";
 import dayjs from "dayjs";
-import "dayjs/locale/pt-br";
+import "dayjs/locale/en";
 
-dayjs.locale("pt-br");
+dayjs.locale("en");
 
 interface DiaryProps {
   foods: Food[];
@@ -141,7 +141,7 @@ export function Diary({ foods }: DiaryProps) {
     setIsEdit(type);
   }, []);
 
-  const dateFormat = dayjs(daySelected).format("dddd, DD [de] MMMM");
+  const dateFormat = dayjs(daySelected).format("dddd, MMMM DD");
   const dateCapitalized =
     dateFormat.charAt(0).toUpperCase() + dateFormat.slice(1);
 
@@ -174,20 +174,20 @@ export function Diary({ foods }: DiaryProps) {
 
         <div className="diary-actions">
           <div className="search-bar">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"></span>
             <input
               type="text"
-              placeholder="Buscar Refeição..."
+              placeholder="Search Meal..."
               value={mealSearch}
               onChange={(e) => setMealSearch(e.target.value)}
-              aria-label="Buscar refeição por nome"
+              aria-label="Search meal by name"
             />
           </div>
           <button
             className="btn-add-meal"
             onClick={() => openMealModal(false, null)}
           >
-            Adicionar Refeição
+            Add Meal
           </button>
         </div>
 

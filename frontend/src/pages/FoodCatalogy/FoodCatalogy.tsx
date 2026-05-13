@@ -37,13 +37,13 @@ export function FoodCatalogy({ foods, loadFoods }: FoodCatalogyProps) {
 
   return (
     <>
-      <title>Catálogo</title>
+      <title>Catalog</title>
       <Sidebar />
       <main className="main-content">
         <div className="page-header">
-          <h2>Catálogo Completo</h2>
+          <h2>Complete Catalog</h2>
           <button className="add-btn" onClick={() => setIsFoodModalOpen(true)}>
-            + Novo Alimento
+            + New Food
           </button>
         </div>
 

@@ -7,7 +7,7 @@ interface FoodBlockProps {
   foods: Food[];
   handleUpdateBlock: HandleUpdateBlockType;
   handleRemoveBlock: (id: number) => void;
-  length: number
+  length: number;
 }
 
 interface Block {
@@ -22,12 +22,12 @@ export function FoodBlock({
   foods,
   handleUpdateBlock,
   handleRemoveBlock,
-  length
+  length,
 }: FoodBlockProps) {
   return (
     <div className="food-block" key={block.id}>
       <div className="form-group">
-        <label>Alimento {index + 1}</label>
+        <label>Food {index + 1}</label>
         <select
           value={block.foodId}
           onChange={(e) =>
@@ -35,7 +35,7 @@ export function FoodBlock({
           }
         >
           <option value="" disabled>
-            Selecione...
+            Select...
           </option>
           {foods.map((food) => (
             <option key={food._id} value={food._id}>
@@ -46,11 +46,11 @@ export function FoodBlock({
       </div>
 
       <div className="form-group">
-        <label>Quantidade (g)</label>
+        <label>Quantity (g)</label>
         <input
           type="number"
           step="1"
-          placeholder="Ex: 100"
+          placeholder="Ex: 100g"
           value={block.quantityGrams}
           onChange={(e) =>
             handleUpdateBlock(block.id, "quantityGrams", e.target.value)
@@ -64,7 +64,7 @@ export function FoodBlock({
           style={{ marginTop: "10px" }}
           onClick={() => handleRemoveBlock(block.id)}
         >
-          Remover Alimento
+          Remove Food
         </button>
       )}
     </div>

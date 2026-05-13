@@ -58,9 +58,7 @@ export function Profile() {
           dailyWaterIntake: String(profile.dailyWaterIntake ?? 0),
         });
       } catch {
-        setLoadError(
-          "Nao foi possivel carregar o perfil. Verifique seu login e tente novamente.",
-        );
+        setLoadError("Unable to load profile. Check your login and try again.");
       }
     };
 
@@ -69,13 +67,13 @@ export function Profile() {
 
   const statusMessage = useMemo(() => {
     if (saveStatus === "loading") {
-      return "Salvando alteracoes...";
+      return "Saving changes...";
     }
     if (saveStatus === "success") {
-      return "Perfil atualizado com sucesso.";
+      return "Profile updated successfully.";
     }
     if (saveStatus === "error") {
-      return "Nao foi possivel salvar. Confira os dados e tente novamente.";
+      return "Unable to save. Check the data and try again.";
     }
     return "";
   }, [saveStatus]);
@@ -134,16 +132,16 @@ export function Profile() {
 
   return (
     <>
-      <title>Perfil</title>
+      <title>Profile</title>
       <Sidebar />
       <main className="profile-container">
         <section className="profile-card">
           <header className="profile-header">
-            <p className="profile-eyebrow">Configuracoes pessoais</p>
-            <h2>Meu Perfil</h2>
+            <p className="profile-eyebrow">Personal settings</p>
+            <h2>My Profile</h2>
             <p className="profile-subtitle">
-              Atualize suas medidas e metas diarias para acompanhar melhor sua
-              rotina.
+              Update your daily measurements and goals to better track your
+              routine.
             </p>
           </header>
 
@@ -155,7 +153,7 @@ export function Profile() {
 
           <form className="profile-form" onSubmit={handleSubmit}>
             <label className="profile-field">
-              <span>Peso Atual (kg)</span>
+              <span>Current Weight (kg)</span>
               <input
                 type="number"
                 min="0"
@@ -169,7 +167,7 @@ export function Profile() {
             </label>
 
             <label className="profile-field">
-              <span>Altura (cm)</span>
+              <span>Height (cm)</span>
               <input
                 type="number"
                 min="0"
@@ -181,7 +179,7 @@ export function Profile() {
             </label>
 
             <label className="profile-field">
-              <span>Meta de Calorias (kcal)</span>
+              <span>Daily Calories Goal (kcal)</span>
               <input
                 type="number"
                 min="0"
@@ -195,7 +193,7 @@ export function Profile() {
             </label>
 
             <label className="profile-field">
-              <span>Meta de Agua (ml)</span>
+              <span>Daily Water Intake (ml)</span>
               <input
                 type="number"
                 min="0"
@@ -210,7 +208,7 @@ export function Profile() {
 
             <div className="profile-actions">
               <button type="submit" disabled={isSaving}>
-                {isSaving ? "Salvando..." : "Salvar alteracoes"}
+                {isSaving ? "Saving..." : "Save changes"}
               </button>
               {statusMessage ? (
                 <p

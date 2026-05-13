@@ -22,7 +22,7 @@ export const MealCard = memo(function MealCard({
   openMealModal,
 }: MealCardProps) {
   function handleDelete() {
-    if (window.confirm("Tem certeza que deseja excluir?")) {
+    if (window.confirm("Are you sure you want to delete?")) {
       deleteMeal(meal._id);
     }
   }
