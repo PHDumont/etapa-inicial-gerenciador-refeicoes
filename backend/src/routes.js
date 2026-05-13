@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
 
 import foods from "./app/controllers/FoodController.js";
 import meals from "./app/controllers/MealController.js";
 import users from "./app/controllers/UserController.js";
 
 const routes = new Router();
+
+routes.get("/foods/search/external", foods.searchExternal);
 
 routes.get("/foods", foods.index);
 routes.get("/foods/:foodId", foods.show);
@@ -20,6 +21,8 @@ routes.put("/meals/:id", meals.update);
 routes.put("/meals/:id/item/:itemId", meals.updateFood);
 routes.delete("/meals/:id/item/:itemId", meals.deleteItem);
 routes.delete("/meals/:id", meals.delete);
+
+routes.get("/test", foods.test);
 
 routes.post("/users/sync", users.findOrCreate);
 routes.get("/users/profile", users.getProfile);

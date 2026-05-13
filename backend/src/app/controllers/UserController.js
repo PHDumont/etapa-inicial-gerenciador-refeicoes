@@ -111,12 +111,8 @@ class UserController {
         name,
       });
 
-      console.log(user);
-
       return res.status(201).json({ message: "User created successfully" });
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error: "Internal server error" });
     }
   };

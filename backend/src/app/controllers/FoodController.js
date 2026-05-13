@@ -1,5 +1,6 @@
 import Food from "../models/Food.js";
 import BasicController from "./BasicController.js";
+import openFoodFactsService from "../services/openFoodFactsService.js";
 
 class FoodController extends BasicController {
   index = async (req, res) => {
@@ -142,6 +143,52 @@ class FoodController extends BasicController {
         return res.status(400).json({ errors: messages });
       }
       return res.status(500).json({ error: "Error deleting" });
+    }
+  };
+
+  test = async (req, res) => {
+    const { name } = req.query;
+
+    const filter = {
+      userId: "69dec5eb63be353a382efe25",
+    };
+
+    const sortOrder = "name";
+    const sortDirection = 1;
+
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+
+    const foods = await Food.find(filter)
+      .sort({ [sortOrder]: sortDirection })
+      .lean();
+
+    if (foods.length === 0) {
+      await this.searchExternal(req, res);
+      // return res.json([]);
+      return;
+    }
+
+    return res.json(foods.map((food) => food.name));
+  };
+
+  searchExternal = async (req, res) => {
+    try {
+      // const user = await this.getCurrentUser(req, res);
+      // if (!user) {
+      //   return;
+      // }
+      const { query } = req.query;
+
+      if (!query) {
+        return res.status(400).json({ error: "Query is required" });
+      }
+
+      const foods = await openFoodFactsService.search(query);
+      return res.json(foods);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal error server" });
     }
   };
 }
