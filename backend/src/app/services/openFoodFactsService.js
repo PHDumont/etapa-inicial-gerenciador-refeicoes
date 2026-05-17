@@ -1,31 +1,66 @@
 const BASE_URL = "https://world.openfoodfacts.org";
 
+const OFF_CATEGORY_RULES = [
+  { pattern: /meat|poultry|fish|seafood|egg|protein/i, category: "Proteins" },
+  { pattern: /fruit/i, category: "Fruits" },
+  { pattern: /vegetable/i, category: "Vegetables" },
+  { pattern: /dairy|milk|cheese|yogurt/i, category: "Dairy" },
+  { pattern: /beverage|drink|juice|soda|coffee|tea/i, category: "Beverages" },
+  { pattern: /sweet|chocolate|candy|dessert|biscuit/i, category: "Sweets" },
+  { pattern: /bread|pasta|rice|cereal|grain|legume|bean/i, category: "Grains" },
+  { pattern: /carbohydrate|starch|potato/i, category: "Carbohydrates" },
+];
+
 class OpenFoodFactsService {
-  normalize(product) {
+  inferCategory(product) {
+    const tags = [
+      ...(product.categories_tags || []),
+      ...(product.categories || "").split(","),
+      product.main_category || "",
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    for (const { pattern, category } of OFF_CATEGORY_RULES) {
+      if (pattern.test(tags)) {
+        return category;
+      }
+    }
+
+    return "Grains";
+  }
+
+  toNumber(value, fallback = 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  mapToFoodSchema(product) {
     const nutriments = product.nutriments || {};
+    const name = product.product_name?.trim();
 
-    return {
-      externalId: product.code || null,
-      barcode: product.code || null,
+    if (!name) {
+      return null;
+    }
 
-      name: product.product_name || null,
-
-      brand: product.brands || null,
-
-      kcalPer100g: nutriments["energy-kcal_100g"] || 0,
-
-      proteinPer100g: nutriments.proteins_100g || 0,
-
-      carbPer100g: nutriments.carbohydrates_100g || 0,
-
-      fatPer100g: nutriments.fat_100g || 0,
-
-      fiberPer100g: nutriments.fiber_100g || 0,
-
-      sugarPer100g: nutriments.sugars_100g || 0,
-
-      sodiumPer100g: (nutriments.sodium_100g || 0) * 1000,
+    const food = {
+      name,
+      category: this.inferCategory(product),
+      kcalPer100g: this.toNumber(nutriments["energy-kcal_100g"]),
+      proteinPer100g: this.toNumber(nutriments.proteins_100g),
+      carbohydratesPer100g: this.toNumber(nutriments.carbohydrates_100g),
+      fatPer100g: this.toNumber(nutriments.fat_100g),
+      fiberPer100g: this.toNumber(nutriments.fiber_100g),
+      sugarPer100g: this.toNumber(nutriments.sugars_100g),
+      sodiumPer100g: this.toNumber(nutriments.sodium_100g) * 1000,
+      source: "open-food-facts",
     };
+
+    if (product.code) {
+      food.barcode = String(product.code);
+    }
+
+    return food;
   }
 
   async fetchWithRetry(url, options = {}, retries = 3) {
@@ -71,24 +106,21 @@ class OpenFoodFactsService {
     throw new Error("Max retries exceeded");
   }
 
-  async search(query) {
+  async search(query, pageSize = 10) {
     const url =
       `${BASE_URL}/cgi/search.pl` +
       `?search_terms=${encodeURIComponent(query)}` +
       `&search_simple=1` +
       `&action=process` +
       `&json=1` +
-      `&page_size=20` +
-      `&sort_by=unique_scans_n` +
-      `&fields=code,product_name,brands,nutriments`;
+      `&page_size=${pageSize}`;
 
     const response = await this.fetchWithRetry(url);
-
     const data = await response.json();
 
     return (data.products || [])
-      .map((product) => this.normalize(product))
-      .filter((food) => food.name);
+      .map((product) => this.mapToFoodSchema(product))
+      .filter(Boolean);
   }
 }
 

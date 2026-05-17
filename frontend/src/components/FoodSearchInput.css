@@ -1,0 +1,90 @@
+.food-search {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.food-search label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.food-search input {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.food-search-status {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.food-search-selected {
+  color: #0b6b50;
+  font-weight: 500;
+}
+
+.food-search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.food-search-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.food-search-option:hover,
+.food-search-option:focus {
+  background: #f0faf7;
+  outline: none;
+}
+
+.food-search-option-name {
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.food-search-option-meta {
+  font-size: 0.78rem;
+  color: #777;
+}
+
+.food-search-empty {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}

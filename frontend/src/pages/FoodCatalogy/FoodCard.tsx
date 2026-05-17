@@ -9,6 +9,7 @@ interface FoodCardProps {
   setEditFood: React.Dispatch<React.SetStateAction<Food | null>>;
   setIsEditFoodModalOpen: React.Dispatch<React.SetStateAction<true | false>>;
   deleteFood: (id: string) => Promise<void>;
+  readOnly?: boolean;
 }
 
 export function FoodCard({
@@ -16,6 +17,7 @@ export function FoodCard({
   setEditFood,
   setIsEditFoodModalOpen,
   deleteFood,
+  readOnly = false,
 }: FoodCardProps) {
   function handleEdit() {
     setEditFood(food);
@@ -31,16 +33,18 @@ export function FoodCard({
   return (
     <div className="food-card">
       <h3>{food.name}</h3>
-      <p>{food.caloriesPerGram} kcal/g</p>
+      <p>{food.kcalPer100g} kcal / 100g</p>
       <p>{food.category}</p>
-      <div className="card-actions">
-        <button className="icon-btn" onClick={handleEdit}>
-          <img className="icon" src={pencil} alt="" />
-        </button>
-        <button className="icon-btn" onClick={handleDelete}>
-          <img className="icon" src={trash} alt="" />
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="card-actions">
+          <button className="icon-btn" onClick={handleEdit}>
+            <img className="icon" src={pencil} alt="" />
+          </button>
+          <button className="icon-btn" onClick={handleDelete}>
+            <img className="icon" src={trash} alt="" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import "../../styles/modal.css";
 import { SummaryPanel } from "../SummaryPanel";
 import { Sidebar } from "../../components/SideBar";
 import { MealCard } from "./MealCard";
-import { type Food, type Meal } from "../../App";
+import { type Meal } from "../../App";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { filterMealsByName } from "../../utils/nutrition";
 import { EditFoodModal } from "./EditFoodModal";
@@ -14,19 +14,24 @@ import "dayjs/locale/en";
 
 dayjs.locale("en");
 
-interface DiaryProps {
-  foods: Food[];
-}
-
 export interface setMainsProp {
   meal: Meal;
+  itemId: string | null;
   foodId: string | null;
   foodName: string | null;
   quantityGrams: number | null;
 }
 
+export interface EditFoodData {
+  itemId: string;
+  foodId: string;
+  foodName: string;
+  quantityGrams: number;
+}
+
 export interface Body {
   quantityGrams: number;
+  foodId?: string;
 }
 
 export interface MealData {
@@ -41,10 +46,10 @@ interface item {
   quantityGrams: number;
 }
 
-export function Diary({ foods }: DiaryProps) {
+export function Diary() {
   const [isEditFoodModalOpen, setIsEditFoodModalOpen] = useState(false);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
-  const [editFoodData, setEditFoodData] = useState<[string, number] | []>([]);
+  const [editFoodData, setEditFoodData] = useState<EditFoodData | null>(null);
   const [mainMeal, setMainMeal] = useState<Meal | null>(null);
   const [mainMealFoodId, setMainMealFoodId] = useState("");
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -122,12 +127,17 @@ export function Diary({ foods }: DiaryProps) {
   );
 
   const setMains = useCallback(
-    ({ meal, foodId, foodName, quantityGrams }: setMainsProp) => {
+    ({ meal, itemId, foodId, foodName, quantityGrams }: setMainsProp) => {
       setMainMeal(meal);
-      if (foodId) {
-        setMainMealFoodId(foodId);
-        if (foodName && quantityGrams) {
-          setEditFoodData([foodName, quantityGrams]);
+      if (itemId) {
+        setMainMealFoodId(itemId);
+        if (foodId && foodName && quantityGrams) {
+          setEditFoodData({
+            itemId,
+            foodId,
+            foodName,
+            quantityGrams,
+          });
           setIsEditFoodModalOpen(true);
         }
       }
@@ -216,7 +226,6 @@ export function Diary({ foods }: DiaryProps) {
           isOpen={isMealModalOpen}
           onClose={() => setIsMealModalOpen(false)}
           onSave={handleSaveNewMeal}
-          foods={foods}
           isEdit={isEdit}
           meal={mainMeal}
         />

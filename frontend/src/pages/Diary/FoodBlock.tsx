@@ -1,48 +1,40 @@
-import type { Food } from "../../App";
-import type { HandleUpdateBlockType } from "./MealModal";
+import { FoodSearchInput } from "../../components/FoodSearchInput";
+import type {
+  FoodBlockState,
+  HandleFoodSelectType,
+  HandleUpdateBlockType,
+} from "./types";
 
 interface FoodBlockProps {
-  block: Block;
+  block: FoodBlockState;
   index: number;
-  foods: Food[];
+  foodName: string;
   handleUpdateBlock: HandleUpdateBlockType;
+  handleFoodSelect: HandleFoodSelectType;
   handleRemoveBlock: (id: number) => void;
   length: number;
-}
-
-interface Block {
-  id: number;
-  foodId: string;
-  quantityGrams: string;
 }
 
 export function FoodBlock({
   block,
   index,
-  foods,
+  foodName,
   handleUpdateBlock,
+  handleFoodSelect,
   handleRemoveBlock,
   length,
 }: FoodBlockProps) {
   return (
     <div className="food-block" key={block.id}>
       <div className="form-group">
-        <label>Food {index + 1}</label>
-        <select
-          value={block.foodId}
-          onChange={(e) =>
-            handleUpdateBlock(block.id, "foodId", e.target.value)
-          }
-        >
-          <option value="" disabled>
-            Select...
-          </option>
-          {foods.map((food) => (
-            <option key={food._id} value={food._id}>
-              {food.name}
-            </option>
-          ))}
-        </select>
+        <FoodSearchInput
+          foodId={block.foodId}
+          foodName={foodName || block.foodName}
+          label={`Food ${index + 1}`}
+          onSelect={(selectedFoodId, name) => {
+            handleFoodSelect(block.id, selectedFoodId, name);
+          }}
+        />
       </div>
 
       <div className="form-group">

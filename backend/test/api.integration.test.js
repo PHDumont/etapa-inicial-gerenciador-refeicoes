@@ -10,6 +10,30 @@ let app;
 let mongoServer;
 let integrationUser;
 
+function validFoodPayload(overrides = {}) {
+  return {
+    name: "Sample Food",
+    category: "Grains",
+    kcalPer100g: 130,
+    proteinPer100g: 2.7,
+    carbohydratesPer100g: 28,
+    fatPer100g: 0.3,
+    fiberPer100g: 0.4,
+    sugarPer100g: 0.1,
+    sodiumPer100g: 1,
+    ...overrides,
+  };
+}
+
+function foodDocument(overrides = {}) {
+  return {
+    ...validFoodPayload(),
+    source: "user",
+    userId: integrationUser._id,
+    ...overrides,
+  };
+}
+
 beforeAll(async () => {
   const { MongoMemoryServer } = await import("mongodb-memory-server");
   mongoServer = await MongoMemoryServer.create();
@@ -40,14 +64,12 @@ describe("API — alimentos (cadastro, listagem, busca, remoção, validação)"
   it("cadastra alimento válido e lista", async () => {
     const created = await request(app)
       .post("/foods")
-      .send({
-        name: "Arroz",
-        category: "Grains",
-        caloriesPerGram: 1.3,
-      })
+      .send(validFoodPayload({ name: "Arroz", kcalPer100g: 130 }))
       .expect(201);
 
     expect(created.body.name).toBe("Arroz");
+    expect(created.body.source).toBe("user");
+    expect(created.body.kcalPer100g).toBe(130);
 
     const list = await request(app).get("/foods").expect(200);
     expect(list.body).toHaveLength(1);
@@ -57,43 +79,25 @@ describe("API — alimentos (cadastro, listagem, busca, remoção, validação)"
   it("entrada inválida: categoria fora do enum retorna 400", async () => {
     const res = await request(app)
       .post("/foods")
-      .send({
-        name: "X",
-        category: "InvalidCategory",
-        caloriesPerGram: 1,
-      })
+      .send(validFoodPayload({ name: "X", category: "InvalidCategory" }))
       .expect(400);
 
     expect(Array.isArray(res.body.errors)).toBe(true);
     expect(res.body.errors.length).toBeGreaterThan(0);
   });
 
-  it("entrada inválida: calorias por grama negativas retorna 400", async () => {
+  it("entrada inválida: kcal por 100g negativas retorna 400", async () => {
     const res = await request(app)
       .post("/foods")
-      .send({
-        name: "Y",
-        category: "Fruits",
-        caloriesPerGram: -0.1,
-      })
+      .send(validFoodPayload({ name: "Y", kcalPer100g: -1 }))
       .expect(400);
 
     expect(res.body.errors).toBeDefined();
   });
 
   it("busca por nome (filtro) — case insensitive", async () => {
-    await Food.create({
-      name: "Banana Prata",
-      category: "Fruits",
-      caloriesPerGram: 0.89,
-      userId: integrationUser._id,
-    });
-    await Food.create({
-      name: "Feijão Preto",
-      category: "Grains",
-      caloriesPerGram: 1.2,
-      userId: integrationUser._id,
-    });
+    await Food.create(foodDocument({ name: "Banana Prata", kcalPer100g: 89 }));
+    await Food.create(foodDocument({ name: "Feijão Preto", kcalPer100g: 77 }));
 
     const res = await request(app)
       .get("/foods")
@@ -105,12 +109,9 @@ describe("API — alimentos (cadastro, listagem, busca, remoção, validação)"
   });
 
   it("remove alimento existente", async () => {
-    const doc = await Food.create({
-      name: "Temp",
-      category: "Beverages",
-      caloriesPerGram: 0.01,
-      userId: integrationUser._id,
-    });
+    const doc = await Food.create(
+      foodDocument({ name: "Temp", category: "Beverages", kcalPer100g: 2 }),
+    );
 
     await request(app).delete(`/foods/${doc._id.toString()}`).expect(200);
 
@@ -119,15 +120,42 @@ describe("API — alimentos (cadastro, listagem, busca, remoção, validação)"
   });
 });
 
+describe("API — refeições padrão por dia", () => {
+  it("cria Breakfast, Lunch, Snacks e Dinner ao listar um dia novo", async () => {
+    const res = await request(app)
+      .get("/meals")
+      .query({ date: "2026-06-10" })
+      .expect(200);
+
+    expect(res.body).toHaveLength(4);
+    expect(res.body.map((meal) => meal.name).sort()).toEqual(
+      ["Breakfast", "Dinner", "Lunch", "Snacks"].sort(),
+    );
+    expect(res.body.every((meal) => meal.order >= 1)).toBe(true);
+  });
+
+  it("não duplica refeições padrão em consultas repetidas ao mesmo dia", async () => {
+    const date = "2026-06-11";
+
+    await request(app).get("/meals").query({ date }).expect(200);
+
+    const res = await request(app).get("/meals").query({ date }).expect(200);
+
+    expect(res.body).toHaveLength(4);
+  });
+});
+
 describe("API — refeições e cálculo de calorias", () => {
   async function createSampleFood() {
     const res = await request(app)
       .post("/foods")
-      .send({
-        name: "Ovo",
-        category: "Proteins",
-        caloriesPerGram: 1.43,
-      })
+      .send(
+        validFoodPayload({
+          name: "Ovo",
+          category: "Proteins",
+          kcalPer100g: 143,
+        }),
+      )
       .expect(201);
     return res.body;
   }
@@ -148,7 +176,7 @@ describe("API — refeições e cálculo de calorias", () => {
       .get(`/meals/${mealRes.body._id}`)
       .expect(200);
 
-    expect(show.body.totalCalories).toBeCloseTo(1.43 * 50, 5);
+    expect(show.body.totalCalories).toBeCloseTo((143 / 100) * 50, 5);
   });
 
   it("entrada inválida: quantidade zero no item ao criar refeição retorna 400", async () => {
@@ -204,8 +232,9 @@ describe("API — refeições e cálculo de calorias", () => {
       .query({ date: "2026-01-15" })
       .expect(200);
 
-    expect(list.body.length).toBe(1);
-    expect(list.body[0].name).toBe("Jantar");
+    const dinner = list.body.find((meal) => meal.name === "Jantar");
+    expect(dinner).toBeDefined();
+    expect(list.body.length).toBeGreaterThanOrEqual(4);
   });
 
   it("entrada inválida: atualizar item com quantidade inválida retorna 400", async () => {

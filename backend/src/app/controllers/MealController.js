@@ -1,6 +1,10 @@
 import Meal from "../models/Meal.js";
 import Food from "../models/Food.js";
 import BasicController from "./BasicController.js";
+import {
+  ensureDefaultMealsForDate,
+  getDayRange,
+} from "../services/defaultMealsService.js";
 
 class MealController extends BasicController {
   validateMealItemsOwnership = async (items, userObjectId) => {
@@ -9,12 +13,12 @@ class MealController extends BasicController {
     }
 
     const foodIds = items.map((item) => item.foodId);
-    const ownedFoodsCount = await Food.countDocuments({
+    const allowedFoodsCount = await Food.countDocuments({
       _id: { $in: foodIds },
-      userId: userObjectId,
+      $or: [{ userId: userObjectId }, { source: "default" }],
     });
 
-    return ownedFoodsCount === foodIds.length;
+    return allowedFoodsCount === foodIds.length;
   };
 
   calculateTotalCalories(meal) {
@@ -24,11 +28,11 @@ class MealController extends BasicController {
       if (
         !food ||
         typeof food !== "object" ||
-        typeof food.caloriesPerGram !== "number"
+        typeof food.kcalPer100g !== "number"
       ) {
         continue;
       }
-      meal.totalCalories += food.caloriesPerGram * item.quantityGrams;
+      meal.totalCalories += (food.kcalPer100g / 100) * item.quantityGrams;
     }
   }
 
@@ -49,21 +53,21 @@ class MealController extends BasicController {
       }
 
       if (date) {
-        const dateSearch = new Date(date);
-
-        const dateStart = new Date(dateSearch);
-        dateStart.setUTCHours(0, 0, 0, 0);
-        const dateEnd = new Date(dateSearch);
-        dateEnd.setUTCHours(23, 59, 59, 999);
-
-        filter.date = {
-          $gte: dateStart,
-          $lte: dateEnd,
-        };
+        try {
+          const { dateStart, dateEnd } = getDayRange(date);
+          filter.date = { $gte: dateStart, $lte: dateEnd };
+          await ensureDefaultMealsForDate(user._id, date);
+        } catch {
+          return res.status(400).json({ error: "Invalid date" });
+        }
       }
 
       const meals = await Meal.find(filter)
-        .populate({ path: "items.foodId", match: { userId: user._id } })
+        .sort({ order: 1, name: 1 })
+        .populate({
+          path: "items.foodId",
+          match: { $or: [{ userId: user._id }, { source: "default" }] },
+        })
         .lean();
 
       for (const meal of meals) {
@@ -86,7 +90,10 @@ class MealController extends BasicController {
 
       const { id } = req.params;
       const meal = await Meal.findOne({ _id: id, userId: user._id })
-        .populate({ path: "items.foodId", match: { userId: user._id } })
+        .populate({
+          path: "items.foodId",
+          match: { $or: [{ userId: user._id }, { source: "default" }] },
+        })
         .lean();
 
       if (!meal) {
@@ -201,14 +208,29 @@ class MealController extends BasicController {
         return res.status(404).json({ error: "Food not found" });
       }
 
-      const { quantityGrams } = req.body;
+      const { quantityGrams, foodId } = req.body;
 
-      editItem.quantityGrams = quantityGrams;
+      if (foodId !== undefined) {
+        const foodAllowed = await Food.countDocuments({
+          _id: foodId,
+          $or: [{ userId: user._id }, { source: "default" }],
+        });
+
+        if (!foodAllowed) {
+          return res.status(404).json({ error: "Food not found" });
+        }
+
+        editItem.foodId = foodId;
+      }
+
+      if (quantityGrams !== undefined) {
+        editItem.quantityGrams = quantityGrams;
+      }
 
       await meal.save();
       await meal.populate({
         path: "items.foodId",
-        match: { userId: user._id },
+        match: { $or: [{ userId: user._id }, { source: "default" }] },
       });
       this.calculateTotalCalories(meal);
 
@@ -248,7 +270,7 @@ class MealController extends BasicController {
       await meal.save();
       await meal.populate({
         path: "items.foodId",
-        match: { userId: user._id },
+        match: { $or: [{ userId: user._id }, { source: "default" }] },
       });
       this.calculateTotalCalories(meal);
 

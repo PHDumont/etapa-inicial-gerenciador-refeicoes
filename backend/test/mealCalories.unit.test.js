@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import mealController from "../src/app/controllers/MealController.js";
 
 describe("MealController.calculateTotalCalories (regra de negócio)", () => {
-  it("soma calorias com foodId populado (caloriesPerGram × gramas)", () => {
+  it("soma calorias com foodId populado (kcalPer100g × gramas / 100)", () => {
     const meal = {
       items: [
         {
-          foodId: { caloriesPerGram: 0.5 },
+          foodId: { kcalPer100g: 50 },
           quantityGrams: 200,
         },
       ],
@@ -18,12 +18,12 @@ describe("MealController.calculateTotalCalories (regra de negócio)", () => {
     expect(meal.totalCalories).toBe(100);
   });
 
-  it("ignora itens sem food populado ou sem caloriesPerGram numérico", () => {
+  it("ignora itens sem food populado ou sem kcalPer100g numérico", () => {
     const meal = {
       items: [
         { foodId: "507f1f77bcf86cd799439011", quantityGrams: 100 },
         { foodId: { name: "x" }, quantityGrams: 50 },
-        { foodId: { caloriesPerGram: 2 }, quantityGrams: 10 },
+        { foodId: { kcalPer100g: 200 }, quantityGrams: 10 },
       ],
       totalCalories: 0,
     };

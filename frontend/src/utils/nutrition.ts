@@ -1,15 +1,12 @@
-export function lineItemKcal(
-  quantityGrams: number,
-  caloriesPerGram: number,
-): number {
-  return quantityGrams * caloriesPerGram;
+export function lineItemKcal(quantityGrams: number, kcalPer100g: number): number {
+  return (kcalPer100g / 100) * quantityGrams;
 }
 
 export function formatLineItemKcal(
   quantityGrams: number,
-  caloriesPerGram: number,
+  kcalPer100g: number,
 ): string {
-  return lineItemKcal(quantityGrams, caloriesPerGram).toFixed(1);
+  return lineItemKcal(quantityGrams, kcalPer100g).toFixed(1);
 }
 
 export type FoodFormResult =

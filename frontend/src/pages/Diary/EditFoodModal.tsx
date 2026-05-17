@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import type { Body } from "./Diary";
+import { FoodSearchInput } from "../../components/FoodSearchInput";
+import type { Body, EditFoodData } from "./Diary";
 
 interface EditFoodModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (arg1: Body) => void;
-  editFoodData: [string, number] | [];
+  editFoodData: EditFoodData | null;
 }
 
 export function EditFoodModal({
@@ -14,11 +15,15 @@ export function EditFoodModal({
   onSave,
   editFoodData,
 }: EditFoodModalProps) {
-  const [newQuantityGrams, setNewQuantityGrams] = useState<number>();
+  const [foodId, setFoodId] = useState("");
+  const [foodName, setFoodName] = useState("");
+  const [quantityGrams, setQuantityGrams] = useState<number | "">("");
 
   useEffect(() => {
     if (editFoodData) {
-      setNewQuantityGrams(editFoodData[1]);
+      setFoodId(editFoodData.foodId);
+      setFoodName(editFoodData.foodName);
+      setQuantityGrams(editFoodData.quantityGrams);
     }
   }, [editFoodData]);
 
@@ -26,29 +31,54 @@ export function EditFoodModal({
   if (!editFoodData) return null;
 
   const handleSave = () => {
-    if (!newQuantityGrams) {
-      alert("Fill the quantity!");
+    if (!foodId || !foodName.trim()) {
+      alert("Select a food!");
       return;
     }
-    onSave({ quantityGrams: newQuantityGrams });
+
+    if (quantityGrams === "" || Number(quantityGrams) < 1) {
+      alert("Fill the quantity (minimum 1 g)!");
+      return;
+    }
+
+    const payload: Body = { quantityGrams: Number(quantityGrams) };
+
+    if (foodId !== editFoodData.foodId) {
+      payload.foodId = foodId;
+    }
+
+    onSave(payload);
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Edit </h3>
+        <h3>Edit food</h3>
 
         <div className="form-group">
-          <label>{editFoodData[0]}</label>
+          <FoodSearchInput
+            foodId={foodId}
+            foodName={foodName}
+            label="Food"
+            onSelect={(id, name) => {
+              setFoodId(id);
+              setFoodName(name);
+            }}
+          />
         </div>
 
         <div className="form-group">
           <label>Quantity (g)</label>
           <input
             type="number"
-            step="1"
-            value={newQuantityGrams}
-            onChange={(e) => setNewQuantityGrams(Number(e.target.value))}
+            min={1}
+            step={1}
+            value={quantityGrams}
+            onChange={(e) =>
+              setQuantityGrams(
+                e.target.value === "" ? "" : Number(e.target.value),
+              )
+            }
           />
         </div>
 

@@ -10,6 +10,21 @@
   margin-bottom: 2rem;
 }
 
+.catalog-section {
+  margin-bottom: 2.5rem;
+}
+
+.catalog-section-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-muted, #555);
+}
+
+.catalog-status {
+  color: var(--text-muted, #666);
+  font-size: 0.95rem;
+}
+
 .food-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

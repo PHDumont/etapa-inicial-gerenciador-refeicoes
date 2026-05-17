@@ -8,14 +8,14 @@ import {
 } from "./nutrition";
 
 describe("lineItemKcal / formatLineItemKcal (cálculo central)", () => {
-  it("calcula kcal da linha (gramas × kcal/g)", () => {
-    expect(lineItemKcal(100, 1.5)).toBe(150);
-    expect(formatLineItemKcal(100, 1.5)).toBe("150.0");
+  it("calcula kcal da linha (kcalPer100g × gramas / 100)", () => {
+    expect(lineItemKcal(100, 150)).toBe(150);
+    expect(formatLineItemKcal(100, 150)).toBe("150.0");
   });
 
   it("caso limite: zero gramas resulta em zero kcal", () => {
-    expect(lineItemKcal(0, 2)).toBe(0);
-    expect(formatLineItemKcal(0, 2)).toBe("0.0");
+    expect(lineItemKcal(0, 200)).toBe(0);
+    expect(formatLineItemKcal(0, 200)).toBe("0.0");
   });
 });
 

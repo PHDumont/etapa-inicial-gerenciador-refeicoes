@@ -21,7 +21,8 @@ export const FoodCard = memo(function FoodCard({
   function handleEdit() {
     setMains({
       meal,
-      foodId: item._id,
+      itemId: item._id,
+      foodId: item.foodId._id,
       foodName: item.foodId.name,
       quantityGrams: item.quantityGrams,
     });
@@ -31,7 +32,8 @@ export const FoodCard = memo(function FoodCard({
     if (window.confirm("Are you sure you want to delete?")) {
       setMains({
         meal,
-        foodId: item._id,
+        itemId: item._id,
+        foodId: null,
         foodName: null,
         quantityGrams: null,
       });
@@ -46,10 +48,7 @@ export const FoodCard = memo(function FoodCard({
           <span className="food-name">{item.foodId.name}</span>
           <span className="food-macros">
             ({item.quantityGrams} g,{" "}
-            {formatLineItemKcal(
-              item.quantityGrams,
-              item.foodId.caloriesPerGram,
-            )}{" "}
+            {formatLineItemKcal(item.quantityGrams, item.foodId.kcalPer100g)}{" "}
             kcal)
           </span>
         </div>

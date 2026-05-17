@@ -39,6 +39,15 @@
   margin-bottom: 1rem;
 }
 
+.form-group:has(.food-search) {
+  overflow: visible;
+  z-index: 1;
+}
+
+.food-blocks .food-block {
+  overflow: visible;
+}
+
 .form-group label {
   font-size: 0.9rem;
   margin-bottom: 0.3rem;

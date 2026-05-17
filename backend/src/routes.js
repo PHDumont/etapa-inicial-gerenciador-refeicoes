@@ -22,8 +22,6 @@ routes.put("/meals/:id/item/:itemId", meals.updateFood);
 routes.delete("/meals/:id/item/:itemId", meals.deleteItem);
 routes.delete("/meals/:id", meals.delete);
 
-routes.get("/test", foods.test);
-
 routes.post("/users/sync", users.findOrCreate);
 routes.get("/users/profile", users.getProfile);
 routes.put("/users/profile", users.updateProfile);

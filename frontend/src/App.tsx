@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Routes, Route, Navigate, Link } from "react-router";
 import axios from "axios";
 import "./App.css";
@@ -27,8 +27,16 @@ axios.defaults.baseURL = "http://localhost:3000";
 export interface Food {
   _id: string;
   name: string;
-  caloriesPerGram: number;
   category: string;
+  kcalPer100g: number;
+  proteinPer100g?: number;
+  carbohydratesPer100g?: number;
+  fatPer100g?: number;
+  fiberPer100g?: number;
+  sugarPer100g?: number;
+  sodiumPer100g?: number;
+  barcode?: string;
+  source?: "default" | "user" | "open-food-facts";
 }
 export interface Meal {
   _id: string;
@@ -49,10 +57,10 @@ function App() {
 
   const { getToken } = useAuth();
 
-  const loadFoods = async () => {
+  const loadFoods = useCallback(async () => {
     const response = await axios.get<Food[]>("/foods");
     setFoods(response.data);
-  };
+  }, []);
 
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
@@ -77,7 +85,7 @@ function App() {
 
   useEffect(() => {
     loadFoods();
-  }, []);
+  }, [loadFoods]);
 
   return (
     <>
@@ -163,7 +171,7 @@ function App() {
                     <Suspense
                       fallback={<div className="route-loading">Loading...</div>}
                     >
-                      <Diary foods={foods} />
+                      <Diary />
                     </Suspense>
                   </div>
                 }

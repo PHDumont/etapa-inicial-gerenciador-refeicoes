@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const mealSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  order: { type: Number, min: 1 },
   date: { type: Date, default: Date.now },
   totalCalories: { type: Number, default: 0 },
   isExpanded: { type: Boolean, default: false },
@@ -19,6 +20,7 @@ const mealSchema = new mongoose.Schema({
 });
 
 mealSchema.index({ date: 1 });
+mealSchema.index({ userId: 1, date: 1, name: 1 });
 
 const Meal = mongoose.model("Meal", mealSchema);
 

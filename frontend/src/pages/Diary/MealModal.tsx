@@ -1,38 +1,25 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import type { Food, Meal } from "../../App";
+import type { Meal } from "../../App";
 import { FoodBlock } from "./FoodBlock";
 import type { MealData } from "./Diary";
 import { parseMealPayload } from "../../utils/nutrition";
+import type { HandleUpdateBlockType } from "./types";
 
 interface MealModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (mealData: MealData, isEdit: boolean) => Promise<void>;
-  foods: Food[];
   isEdit: boolean;
   meal: Meal | null;
 }
 
-export type HandleUpdateBlockType = (
-  id: number,
-  field: string,
-  value: string | number,
-) => void;
-
-function MealModal({
-  isOpen,
-  onClose,
-  onSave,
-  foods,
-  isEdit,
-  meal,
-}: MealModalProps) {
+function MealModal({ isOpen, onClose, onSave, isEdit, meal }: MealModalProps) {
   const [name, setName] = useState("");
   const [dateSelect, setDateSelect] = useState("");
 
   const [foodBlocks, setFoodBlocks] = useState([
-    { id: Date.now(), foodId: "", quantityGrams: "" },
+    { id: Date.now(), foodId: "", foodName: "", quantityGrams: "" },
   ]);
 
   useEffect(() => {
@@ -42,6 +29,7 @@ function MealModal({
       const loadedBlocks = meal.items.map((item) => ({
         id: Math.random(),
         foodId: item.foodId._id,
+        foodName: item.foodId.name,
         quantityGrams: item.quantityGrams.toString(),
       }));
 
@@ -51,7 +39,9 @@ function MealModal({
     } else {
       setName("");
       setDateSelect(dayjs().format("YYYY-MM-DD"));
-      setFoodBlocks([{ id: Date.now(), foodId: "", quantityGrams: "" }]);
+      setFoodBlocks([
+        { id: Date.now(), foodId: "", foodName: "", quantityGrams: "" },
+      ]);
     }
   }, [isOpen]);
 
@@ -60,7 +50,7 @@ function MealModal({
   const handleAddBlock = () => {
     setFoodBlocks([
       ...foodBlocks,
-      { id: Date.now(), foodId: "", quantityGrams: "" },
+      { id: Date.now(), foodId: "", foodName: "", quantityGrams: "" },
     ]);
   };
 
@@ -69,13 +59,28 @@ function MealModal({
   };
 
   const handleUpdateBlock: HandleUpdateBlockType = (id, field, value) => {
-    setFoodBlocks(
-      foodBlocks.map((block) => {
-        if (block.id === id) {
-          return { ...block, [field]: value };
-        }
-        return block;
-      }),
+    setFoodBlocks((prev) =>
+      prev.map((block) =>
+        block.id === id ? { ...block, [field]: value } : block,
+      ),
+    );
+  };
+
+  const handleFoodSelect = (
+    blockId: number,
+    selectedFoodId: string,
+    selectedFoodName: string,
+  ) => {
+    setFoodBlocks((prev) =>
+      prev.map((block) =>
+        block.id === blockId
+          ? {
+              ...block,
+              foodId: selectedFoodId,
+              foodName: selectedFoodName,
+            }
+          : block,
+      ),
     );
   };
 
@@ -148,9 +153,10 @@ function MealModal({
               key={block.id}
               block={block}
               index={index}
-              foods={foods}
+              foodName={block.foodName}
               handleRemoveBlock={handleRemoveBlock}
               handleUpdateBlock={handleUpdateBlock}
+              handleFoodSelect={handleFoodSelect}
               length={foodBlocks.length}
             />
           ))}
