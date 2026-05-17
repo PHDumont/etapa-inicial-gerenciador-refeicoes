@@ -30,6 +30,10 @@ A aplicação permite registrar refeições com base em alimentos previamente ca
 - **Frontend:** TypeScript, React, Vite, React Router, Axios, Day.js
 - **Ferramentas:** Yarn, Docker Compose, ESLint, Vitest, Testing Library, MongoDB Memory Server (testes de API)
 
+## APIS Utilizadas
+
+- **OpenFoodFacts:** (https://world.openfoodfacts.org/)
+
 ## Pré-requisitos
 
 - [Node.js](https://nodejs.org/) (versão LTS recomendada)
@@ -171,7 +175,7 @@ etapa-inicial-gerenciador-refeicoes/
 
 ## Versão
 
-1.0.1
+2.0.0
 
 ## Autor
 
