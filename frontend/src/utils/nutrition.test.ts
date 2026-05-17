@@ -3,9 +3,21 @@ import {
   filterMealsByName,
   formatLineItemKcal,
   lineItemKcal,
+  parseFoodForm,
   parseMealPayload,
-  parseNewFoodForm,
 } from "./nutrition";
+
+const validFormInput = {
+  name: "Arroz",
+  category: "Grains",
+  kcalPer100g: 130,
+  proteinPer100g: 2.7,
+  carbohydratesPer100g: 28,
+  fatPer100g: 0.3,
+  fiberPer100g: 0.4,
+  sugarPer100g: 0.1,
+  sodiumPer100g: 1,
+};
 
 describe("lineItemKcal / formatLineItemKcal (cálculo central)", () => {
   it("calcula kcal da linha (kcalPer100g × gramas / 100)", () => {
@@ -19,61 +31,69 @@ describe("lineItemKcal / formatLineItemKcal (cálculo central)", () => {
   });
 });
 
-describe("parseNewFoodForm (validação / cadastro)", () => {
+describe("parseFoodForm (validação / cadastro)", () => {
   it("aceita dados válidos", () => {
-    const r = parseNewFoodForm("Arroz", "Grains", 1.2);
-    expect(r.ok).toBe(true);
-    if (r.ok) {
-      expect(r.data).toEqual({
+    const result = parseFoodForm(validFormInput);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual({
         name: "Arroz",
         category: "Grains",
-        caloriesPerGram: 1.2,
+        kcalPer100g: 130,
+        proteinPer100g: 2.7,
+        carbohydratesPer100g: 28,
+        fatPer100g: 0.3,
+        fiberPer100g: 0.4,
+        sugarPer100g: 0.1,
+        sodiumPer100g: 1,
       });
     }
   });
 
   it("entrada inválida: campos vazios", () => {
-    expect(parseNewFoodForm("", "Grains", 1)).toEqual({
+    expect(parseFoodForm({ ...validFormInput, name: "" })).toEqual({
       ok: false,
       reason: "EMPTY_FIELDS",
     });
-    expect(parseNewFoodForm("x", "", 1)).toEqual({
-      ok: false,
-      reason: "EMPTY_FIELDS",
-    });
-    expect(parseNewFoodForm("x", "Fruits", "")).toEqual({
+    expect(parseFoodForm({ ...validFormInput, category: "" })).toEqual({
       ok: false,
       reason: "EMPTY_FIELDS",
     });
   });
 
-  it("entrada inválida: calorias negativas ou não numéricas", () => {
-    expect(parseNewFoodForm("x", "Fruits", -1)).toEqual({
+  it("entrada inválida: valores numéricos inválidos", () => {
+    expect(parseFoodForm({ ...validFormInput, kcalPer100g: -1 })).toEqual({
       ok: false,
-      reason: "INVALID_CALORIES",
+      reason: "INVALID_NUMERIC",
     });
-    expect(parseNewFoodForm("x", "Fruits", Number.NaN)).toEqual({
+    expect(parseFoodForm({ ...validFormInput, proteinPer100g: "" })).toEqual({
       ok: false,
-      reason: "INVALID_CALORIES",
+      reason: "INVALID_NUMERIC",
     });
+    expect(parseFoodForm({ ...validFormInput, sodiumPer100g: Number.NaN })).toEqual(
+      {
+        ok: false,
+        reason: "INVALID_NUMERIC",
+      },
+    );
   });
 
   it("normaliza espaços no nome", () => {
-    const r = parseNewFoodForm("  Feijão  ", "Grains", 0);
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.data.name).toBe("Feijão");
+    const result = parseFoodForm({ ...validFormInput, name: "  Feijão  " });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data.name).toBe("Feijão");
   });
 });
 
 describe("parseMealPayload (refeição / listagem lógica)", () => {
   it("monta itens a partir dos blocos preenchidos", () => {
-    const r = parseMealPayload("Almoço", [
+    const result = parseMealPayload("Almoço", [
       { foodId: "abc", quantityGrams: "100" },
       { foodId: "", quantityGrams: "" },
     ]);
-    expect(r.ok).toBe(true);
-    if (r.ok) {
-      expect(r.items).toEqual([{ foodId: "abc", quantityGrams: 100 }]);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.items).toEqual([{ foodId: "abc", quantityGrams: 100 }]);
     }
   });
 
@@ -103,9 +123,9 @@ describe("parseMealPayload (refeição / listagem lógica)", () => {
   });
 
   it("aceita vírgula decimal", () => {
-    const r = parseMealPayload("X", [{ foodId: "a", quantityGrams: "10,5" }]);
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.items[0].quantityGrams).toBe(10.5);
+    const result = parseMealPayload("X", [{ foodId: "a", quantityGrams: "10,5" }]);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.items[0].quantityGrams).toBe(10.5);
   });
 });
 

@@ -9,31 +9,87 @@ export function formatLineItemKcal(
   return lineItemKcal(quantityGrams, kcalPer100g).toFixed(1);
 }
 
-export type FoodFormResult =
-  | {
-      ok: true;
-      data: { name: string; category: string; caloriesPerGram: number };
-    }
-  | { ok: false; reason: "EMPTY_FIELDS" | "INVALID_CALORIES" };
+export type FoodFormNumericField =
+  | "kcalPer100g"
+  | "proteinPer100g"
+  | "carbohydratesPer100g"
+  | "fatPer100g"
+  | "fiberPer100g"
+  | "sugarPer100g"
+  | "sodiumPer100g";
 
-export function parseNewFoodForm(
-  name: string,
-  category: string,
-  calories: number | "",
-): FoodFormResult {
-  if (!name.trim() || !category.trim() || calories === "") {
+export type FoodFormInput = {
+  name: string;
+  category: string;
+  kcalPer100g: number | "";
+  proteinPer100g: number | "";
+  carbohydratesPer100g: number | "";
+  fatPer100g: number | "";
+  fiberPer100g: number | "";
+  sugarPer100g: number | "";
+  sodiumPer100g: number | "";
+};
+
+export type ParsedFoodFormData = {
+  name: string;
+  category: string;
+  kcalPer100g: number;
+  proteinPer100g: number;
+  carbohydratesPer100g: number;
+  fatPer100g: number;
+  fiberPer100g: number;
+  sugarPer100g: number;
+  sodiumPer100g: number;
+};
+
+export type FoodFormResult =
+  | { ok: true; data: ParsedFoodFormData }
+  | { ok: false; reason: "EMPTY_FIELDS" | "INVALID_NUMERIC" };
+
+function parseRequiredNumber(value: number | ""): number | null {
+  if (value === "") return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return n;
+}
+
+export function parseFoodForm(input: FoodFormInput): FoodFormResult {
+  if (!input.name.trim() || !input.category.trim()) {
     return { ok: false, reason: "EMPTY_FIELDS" };
   }
-  const n = Number(calories);
-  if (!Number.isFinite(n) || n < 0) {
-    return { ok: false, reason: "INVALID_CALORIES" };
+
+  const numericFields: FoodFormNumericField[] = [
+    "kcalPer100g",
+    "proteinPer100g",
+    "carbohydratesPer100g",
+    "fatPer100g",
+    "fiberPer100g",
+    "sugarPer100g",
+    "sodiumPer100g",
+  ];
+
+  const parsed: Partial<Record<FoodFormNumericField, number>> = {};
+
+  for (const field of numericFields) {
+    const value = parseRequiredNumber(input[field]);
+    if (value === null) {
+      return { ok: false, reason: "INVALID_NUMERIC" };
+    }
+    parsed[field] = value;
   }
+
   return {
     ok: true,
     data: {
-      name: name.trim(),
-      category,
-      caloriesPerGram: n,
+      name: input.name.trim(),
+      category: input.category,
+      kcalPer100g: parsed.kcalPer100g!,
+      proteinPer100g: parsed.proteinPer100g!,
+      carbohydratesPer100g: parsed.carbohydratesPer100g!,
+      fatPer100g: parsed.fatPer100g!,
+      fiberPer100g: parsed.fiberPer100g!,
+      sugarPer100g: parsed.sugarPer100g!,
+      sodiumPer100g: parsed.sodiumPer100g!,
     },
   };
 }
