@@ -1,11 +1,28 @@
 import { useState } from "react";
 import "../../styles/modal.css";
-import { parseNewFoodForm } from "../../utils/nutrition";
+
+const CATEGORIES = [
+  "Proteins",
+  "Carbohydrates",
+  "Vegetables",
+  "Fruits",
+  "Dairy",
+  "Beverages",
+  "Sweets",
+  "Grains",
+] as const;
 
 export interface NewFoodData {
   name: string;
   category: string;
-  caloriesPerGram: number;
+  kcalPer100g: number;
+  proteinPer100g: number;
+  carbohydratesPer100g: number;
+  fatPer100g: number;
+  fiberPer100g: number;
+  sugarPer100g: number;
+  sodiumPer100g: number;
+  barcode?: string;
 }
 
 interface FoodModalProps {
@@ -14,34 +31,102 @@ interface FoodModalProps {
   onSave: (data: NewFoodData) => void;
 }
 
+type NumericField = Exclude<keyof NewFoodData, "name" | "category" | "barcode">;
+
+const INITIAL_NUMERIC: Record<NumericField, number | ""> = {
+  kcalPer100g: "",
+  proteinPer100g: "",
+  carbohydratesPer100g: "",
+  fatPer100g: "",
+  fiberPer100g: "",
+  sugarPer100g: "",
+  sodiumPer100g: "",
+};
+
+function parseRequiredNumber(value: number | ""): number | null {
+  if (value === "") return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return n;
+}
+
 function FoodModal({ isOpen, onClose, onSave }: FoodModalProps) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
-  const [calories, setCalories] = useState<number | "">("");
+  const [barcode, setBarcode] = useState("");
+  const [numericFields, setNumericFields] =
+    useState<Record<NumericField, number | "">>(INITIAL_NUMERIC);
 
   if (!isOpen) return null;
 
+  const setNumericField = (field: NumericField, value: number | "") => {
+    setNumericFields((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setName("");
+    setCategory("");
+    setBarcode("");
+    setNumericFields(INITIAL_NUMERIC);
+  };
+
   const handleSave = () => {
-    const parsed = parseNewFoodForm(name, category, calories);
-    if (parsed.ok === false) {
-      if (parsed.reason === "EMPTY_FIELDS") {
-        alert("Fill all fields!");
-      } else {
-        alert("Invalid calories (use a value ≥ 0).");
-      }
+    if (!name.trim() || !category.trim()) {
+      alert("Fill all required fields!");
       return;
     }
 
-    onSave(parsed.data);
+    const parsed: Record<NumericField, number | null> = {
+      kcalPer100g: parseRequiredNumber(numericFields.kcalPer100g),
+      proteinPer100g: parseRequiredNumber(numericFields.proteinPer100g),
+      carbohydratesPer100g: parseRequiredNumber(
+        numericFields.carbohydratesPer100g,
+      ),
+      fatPer100g: parseRequiredNumber(numericFields.fatPer100g),
+      fiberPer100g: parseRequiredNumber(numericFields.fiberPer100g),
+      sugarPer100g: parseRequiredNumber(numericFields.sugarPer100g),
+      sodiumPer100g: parseRequiredNumber(numericFields.sodiumPer100g),
+    };
 
-    setName("");
-    setCategory("");
-    setCalories("");
+    if (Object.values(parsed).some((value) => value === null)) {
+      alert("Fill all nutritional fields with values ≥ 0.");
+      return;
+    }
+
+    const data: NewFoodData = {
+      name: name.trim(),
+      category,
+      kcalPer100g: parsed.kcalPer100g!,
+      proteinPer100g: parsed.proteinPer100g!,
+      carbohydratesPer100g: parsed.carbohydratesPer100g!,
+      fatPer100g: parsed.fatPer100g!,
+      fiberPer100g: parsed.fiberPer100g!,
+      sugarPer100g: parsed.sugarPer100g!,
+      sodiumPer100g: parsed.sodiumPer100g!,
+    };
+
+    const trimmedBarcode = barcode.trim();
+    if (trimmedBarcode) {
+      data.barcode = trimmedBarcode;
+    }
+
+    onSave(data);
+    resetForm();
   };
+
+  const nutritionFields: { field: NumericField; label: string }[] = [
+    { field: "kcalPer100g", label: "Energy (kcal per 100g)" },
+    { field: "proteinPer100g", label: "Protein (g per 100g)" },
+    { field: "carbohydratesPer100g", label: "Carbohydrates (g per 100g)" },
+    { field: "fatPer100g", label: "Fat (g per 100g)" },
+    { field: "fiberPer100g", label: "Fiber (g per 100g)" },
+    { field: "sugarPer100g", label: "Sugar (g per 100g)" },
+    { field: "sodiumPer100g", label: "Sodium (mg per 100g)" },
+  ];
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div className="modal-content modal-content--wide">
         <h3>Register New Food</h3>
 
         <div className="form-group">
@@ -61,27 +146,39 @@ function FoodModal({ isOpen, onClose, onSave }: FoodModalProps) {
             onChange={(e) => setCategory(e.target.value)}
           >
             <option value="">Select...</option>
-            <option value="Proteins">Proteins</option>
-            <option value="Carbohydrates">Carbohydrates</option>
-            <option value="Vegetables">Vegetables</option>
-            <option value="Fruits">Fruits</option>
-            <option value="Dairy">Dairy</option>
-            <option value="Beverages">Beverages</option>
-            <option value="Sweets">Sweets</option>
-            <option value="Grains">Grains</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
         </div>
 
+        {nutritionFields.map(({ field, label }) => (
+          <div className="form-group" key={field}>
+            <label>{label}</label>
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={numericFields[field]}
+              onChange={(e) =>
+                setNumericField(
+                  field,
+                  e.target.value === "" ? "" : Number(e.target.value),
+                )
+              }
+            />
+          </div>
+        ))}
+
         <div className="form-group">
-          <label>Calories per Gram (kcal)</label>
+          <label>Barcode (optional)</label>
           <input
-            type="number"
-            step="0.01"
-            placeholder="Ex: 0.52"
-            value={calories}
-            onChange={(e) =>
-              setCalories(e.target.value === "" ? "" : Number(e.target.value))
-            }
+            type="text"
+            placeholder="Ex: 7891000100103"
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
           />
         </div>
 

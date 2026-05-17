@@ -19,7 +19,7 @@ export function FoodCatalogy({ foods, loadFoods }: FoodCatalogyProps) {
   const [editFood, setEditFood] = useState<Food | null>(null);
 
   const handleSaveNewFood = async (newFood: NewFoodData) => {
-    await axios.post("/foods", newFood);
+    await axios.post("/foods", { ...newFood, source: "user" });
     setIsFoodModalOpen(false);
     await loadFoods();
   };
