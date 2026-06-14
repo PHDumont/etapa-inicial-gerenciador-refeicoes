@@ -26,8 +26,8 @@ A aplicação permite registrar refeições com base em alimentos previamente ca
 
 ## Tecnologias Utilizadas
 
-- **Backend:** Node.js, Express, Mongoose, MongoDB
-- **Frontend:** TypeScript, React, Vite, React Router, Axios, Day.js
+- **Backend:** Node.js, Express, Mongoose, MongoDB, Clerk (`@clerk/express`)
+- **Frontend:** TypeScript, React, Vite, React Router, Axios, Day.js, Clerk (`@clerk/react`)
 - **Ferramentas:** Yarn, Docker Compose, ESLint, Vitest, Testing Library, MongoDB Memory Server (testes de API)
 
 ## APIS Utilizadas
@@ -68,6 +68,50 @@ Use **Yarn** em backend e frontend (o repositório versiona `yarn.lock`; não us
    cd ../frontend
    yarn install
    ```
+
+## Variáveis de ambiente (Clerk)
+
+O frontend exige a variável `VITE_CLERK_PUBLISHABLE_KEY` para iniciar (`frontend/src/main.tsx`). O arquivo `.env` não é versionado (está no `.gitignore`); cada desenvolvedor precisa criá-lo localmente.
+
+### Frontend — `VITE_CLERK_PUBLISHABLE_KEY`
+
+1. Acesse [https://dashboard.clerk.com](https://dashboard.clerk.com) e crie uma conta (plano gratuito).
+2. Crie uma nova aplicação (por exemplo, "Meal Tracker").
+3. No painel, vá em **Configure** → **API Keys** e copie a **Publishable key** (formato `pk_test_...` em desenvolvimento).
+4. Na pasta `frontend/`, crie o arquivo `.env` com:
+
+   ```env
+   VITE_CLERK_PUBLISHABLE_KEY=pk_test_SUA_CHAVE_AQUI
+   ```
+
+   Substitua `pk_test_SUA_CHAVE_AQUI` pela chave copiada do Clerk.
+
+5. Se `yarn dev` já estiver rodando, pare e execute novamente em `frontend/`. O Vite só carrega variáveis `VITE_*` na inicialização.
+
+**Importante:**
+
+- Não commite o arquivo `.env` (contém credenciais).
+- O grupo pode compartilhar a mesma chave do projeto Clerk ou cada membro pode usar sua própria aplicação de teste.
+- Sem essa variável, `yarn dev` e `yarn build` no frontend falham com o erro `VITE_CLERK_PUBLISHABLE_KEY is not set`.
+
+### Backend — variáveis Clerk (recomendado)
+
+Para login e API autenticada funcionarem de ponta a ponta, crie também `backend/.env` com as chaves do mesmo painel Clerk (**Configure** → **API Keys**):
+
+| Variável                | Obrigatória para                                         |
+| ----------------------- | -------------------------------------------------------- |
+| `CLERK_PUBLISHABLE_KEY` | Middleware Clerk validar tokens                          |
+| `CLERK_SECRET_KEY`      | Validação de sessão na API                               |
+| `CLERK_WEBHOOK_SECRET`  | Sincronizar usuários via webhook (opcional em dev local) |
+
+Exemplo de `backend/.env`:
+
+```env
+CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+```
+
+Sem as chaves do backend, o frontend pode abrir a tela de login, mas a API pode retornar `401 Unauthorized` nas rotas protegidas.
 
 ## Banco de dados (Docker)
 
