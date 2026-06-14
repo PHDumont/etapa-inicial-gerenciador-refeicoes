@@ -31,6 +31,15 @@ export function Sidebar() {
         >
           Profile
         </NavLink>
+
+        <NavLink
+          to="/Water"
+          className={({ isActive }) =>
+            isActive ? "nav-item active" : "nav-item"
+          }
+        >
+          Water
+        </NavLink>
       </ul>
     </aside>
   );

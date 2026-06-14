@@ -21,6 +21,8 @@ const Diary = lazy(() =>
 const Profile = lazy(() =>
   import("./pages/Profile/Profile").then((m) => ({ default: m.Profile })),
 );
+const Water = lazy(() => import("./pages/Water/Water").then((m) => ({ default: m.default }))
+);
 
 axios.defaults.baseURL = "http://localhost:3000";
 
@@ -184,6 +186,18 @@ function App() {
                       fallback={<div className="route-loading">Loading...</div>}
                     >
                       <Profile />
+                    </Suspense>
+                  </div>
+                }
+              />
+              <Route
+                path="/water"
+                element={
+                  <div className="container">
+                    <Suspense
+                      fallback={<div className="route-loading">Loading...</div>}
+                    >
+                      <Water/>
                     </Suspense>
                   </div>
                 }
