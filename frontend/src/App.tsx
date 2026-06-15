@@ -24,7 +24,7 @@ const Profile = lazy(() =>
 const Water = lazy(() => import("./pages/Water/Water").then((m) => ({ default: m.default }))
 );
 
-axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 export interface Food {
   _id: string;

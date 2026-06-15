@@ -156,7 +156,7 @@ export default function WaterPage() {
   const [logAmount, setLogAmount] = useState('250');
 
   // ── Handlers ────────────────────────────────────────────────────────────────
-  if (false) { setActiveTab('calculator'); console.log(activeTab); } // Avoid unused state trigger error
+
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
