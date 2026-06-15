@@ -139,7 +139,7 @@ function getStatusMsg(pct: number): string {
 // ── Main Component ──────────────────────────────────────────────────────
 export default function WaterPage() {
   // Active screen toggle in sidebar
-  const [activeTab, setActiveTab] = useState<'calculator' | 'summary'>('calculator');
+
 
   // Form states
   const [weight,        setWeight]        = useState('');
@@ -223,7 +223,7 @@ export default function WaterPage() {
         <div className="container">
 
           {/* ══ SCREEN: CALCULATOR ══ */}
-          {activeTab === 'calculator' && (
+          
             <>
               <div className="header">
                 <div className="drop"></div>
@@ -412,12 +412,12 @@ export default function WaterPage() {
                 </div>
               )}
             </>
-          )}
+          
 
           {/* ══ SCREEN: SUMMARY ══ */}
-          {activeTab === 'summary' && (
-            <SummaryPanel />
-          )}
+          
+            
+          
 
         </div>
       </main>
